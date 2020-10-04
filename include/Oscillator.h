@@ -26,7 +26,6 @@ public:
         phase = 0.0;
     };
     
-    
 
 private:
     float freq;
