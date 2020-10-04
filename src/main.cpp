@@ -102,7 +102,7 @@ void dsp(unsigned int& step_count) {
 
     constexpr int numLoop = sample_buffer.size() / 2;
     for(int i = 0; i < numLoop; i++) {        
-        const uint32_t val = audioSample(step_count) * Config::range;
+        const uint32_t val = static_cast<uint32_t>(audioSample(step_count) * Config::range) << 8;
                 
         sample_buffer[i * 2] = val;
         sample_buffer[i * 2 + 1] = val;
@@ -126,7 +126,7 @@ void setupI2S() {
     i2s_config_t i2s_config = {
             .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_TX),                                   // Only TX
             .sample_rate = Config::Sampling_Rate,
-            .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+            .bits_per_sample = I2S_BITS_PER_SAMPLE_24BIT,
             .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
             .communication_format = I2S_COMM_FORMAT_I2S,  //I2S_COMM_FORMAT_STAND_MSB - probably version thing
             .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
