@@ -1,0 +1,4 @@
+[submodule "lib/esp-adf"]
+	path = lib/esp-adf
+	url = git@github.com:espressif/esp-adf.git
+	branch = master

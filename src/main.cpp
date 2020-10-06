@@ -4,28 +4,30 @@
 #include "driver/i2s.h"
 #include "driver/gpio.h"
 #include "esp_system.h"
+#include <Arduino.h>
+
 #include <cmath>
 #include <array>
 #include <limits>
+#include <iostream>
 
 #include "Config.h"
+#include "DelayLine.h"
 #include "Oscillator.h"
+#include "UnitTest.h"
 
 // #define SAMPLE_RATE     (48000)
-#define I2S_NUM         (0)
-#define WAVE_FREQ_HZ    (100)
-#define PI              (3.1415926535)
-#define I2S_BCK_IO      (GPIO_NUM_13)
-#define I2S_WS_IO       (GPIO_NUM_15)
-#define I2S_DO_IO       (GPIO_NUM_21)
-#define I2S_DI_IO       (-1)
+// #define I2S_NUM         (0)
+// #define WAVE_FREQ_HZ    (100)
+// #define PI              (3.1415926535)
+// #define I2S_BCK_IO      (GPIO_NUM_13)
+// #define I2S_WS_IO       (GPIO_NUM_15)
+// #define I2S_DO_IO       (GPIO_NUM_21)
+// #define I2S_DI_IO       (-1)
 
-constexpr int  SAMPLE_PER_CYCLE = Config::Sampling_Rate/WAVE_FREQ_HZ;
+// constexpr int  SAMPLE_PER_CYCLE = Config::Sampling_Rate/WAVE_FREQ_HZ;
 
-extern "C" {
-    void app_main(void);
-    //static void setup_triangle_sine_waves(int bits);
-}
+
 
 /*
 static void setup_triangle_sine_waves(int bits) {   
@@ -83,7 +85,35 @@ static void setup_triangle_sine_waves(int bits) {
 }
 */
 
+
 // Oscillator osc;
+
+void unit_test() {
+    using namespace UnitTest;
+    std::cout << "Beginning unit test..." << std::endl;
+    DelayLine<int, 10> idelay;    
+    assert_equal(idelay.get(0), 0);
+    idelay.add(1);    
+    assert_equal(idelay.get(0), 1);
+    idelay.add(2);
+    assert_equal(idelay.get(0), 2);
+    assert_equal(idelay.get(1), 1);
+
+    std::cout << "Float Delay testing..." << std::endl;
+
+    DelayLine<float, 10> fdelay;    
+    assert_equal(fdelay.get(0), 0.0, true);
+    fdelay.add(1.0);
+    assert_equal(fdelay.get(0), 1.0);
+    fdelay.add(2.0);
+    assert_equal(fdelay.get(0), 2.0);
+    assert_equal(fdelay.get(1), 1.0);
+    assert_equal(fdelay.get(2), 0.0);
+    assert_equal(fdelay.get(3), 0.0);
+    assert_equal(fdelay.get(4), 0.0);
+
+    std::cout << "finished Unit test " << std::endl;
+}
 
 
 volatile int freq = 440;
@@ -114,7 +144,7 @@ void dsp(unsigned int& step_count) {
     }
     
     size_t i2s_bytes_write = 0;    
-    i2s_write(I2S_NUM, sample_buffer.data(), Config::I2S_Write_Size, &i2s_bytes_write, portMAX_DELAY);
+    i2s_write(Config::ADC::I2S_NUM, sample_buffer.data(), Config::I2S_Write_Size, &i2s_bytes_write, portMAX_DELAY);
 }
 
 void setupI2S() {
@@ -137,14 +167,14 @@ void setupI2S() {
             .fixed_mclk = 0,
         };
         i2s_pin_config_t pin_config = {
-            .bck_io_num = I2S_BCK_IO,
-            .ws_io_num = I2S_WS_IO,
-            .data_out_num = I2S_DO_IO,
-            .data_in_num = I2S_DI_IO                                               //Not used
+            .bck_io_num = Config::ADC::Pins::BCK,
+            .ws_io_num = Config::ADC::Pins::WS,
+            .data_out_num = Config::ADC::Pins::DO,
+            .data_in_num = Config::ADC::Pins::DI              //Not used
         };
-        i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
-        i2s_set_pin(I2S_NUM, &pin_config);
-        i2s_set_clk(I2S_NUM, Config::Sampling_Rate, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+        i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, 0, NULL);
+        i2s_set_pin(Config::ADC::I2S_NUM, &pin_config);
+        i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
 }
 
 void vAudioLoop(void* param) {    
@@ -167,7 +197,20 @@ void vControlLoop(void* param) {
     }
 }
 
-void app_main(void) {
+void setup() {
+    unit_test();
+    setupI2S();
+    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 2, NULL, 1);
+    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 1, NULL, 0);
+}
+
+void loop() {
+
+}
+
+/*
+extern "C" void app_main(void) {
+    initArduino();
     setupI2S();
     xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 2, NULL, 1);
     xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 1, NULL, 0);
@@ -175,3 +218,4 @@ void app_main(void) {
         vTaskDelay(1);
     }
 }
+*/

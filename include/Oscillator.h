@@ -1,4 +1,4 @@
-#include <cmath>
+#include <Arduino.h>
 #include "Config.h"
 
 class Oscillator {
@@ -11,13 +11,13 @@ public:
     void setFreq(T _freq) {
         freq = static_cast<float>(_freq);
         freq_reciprocal = 1.0 / freq;
-        phase_inc = M_TWOPI * freq * Config::Sampling_Rate_Reciprocal;
+        phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
     }
 
     float getNext() { //returns -1.0 ~ 1.0        
         phase += phase_inc; 
 
-        if (M_TWOPI <= phase) {
+        if (TWO_PI <= phase) {
             phase = 0.0;
         }
         return sinf(phase);
