@@ -12,21 +12,9 @@
 #include <iostream>
 
 #include "Config.h"
-#include "DelayLine.h"
-#include "Oscillator.h"
+#include "DSP/DelayLine.h"
+#include "DSP/Oscillator.h"
 #include "UnitTest.h"
-
-// #define SAMPLE_RATE     (48000)
-// #define I2S_NUM         (0)
-// #define WAVE_FREQ_HZ    (100)
-// #define PI              (3.1415926535)
-// #define I2S_BCK_IO      (GPIO_NUM_13)
-// #define I2S_WS_IO       (GPIO_NUM_15)
-// #define I2S_DO_IO       (GPIO_NUM_21)
-// #define I2S_DI_IO       (-1)
-
-// constexpr int  SAMPLE_PER_CYCLE = Config::Sampling_Rate/WAVE_FREQ_HZ;
-
 
 
 /*
@@ -147,7 +135,8 @@ void dsp(unsigned int& step_count) {
     i2s_write(Config::ADC::I2S_NUM, sample_buffer.data(), Config::I2S_Write_Size, &i2s_bytes_write, portMAX_DELAY);
 }
 
-void setupI2S() {
+
+void setup_dac() {
     //for 36Khz sample rates, we create 100Hz sine wave, every cycle need 36000/100 = 360 samples (4-bytes or 8-bytes each sample)
     //depend on bits_per_sample
     //using 6 buffers, we need 60-samples per buffer
@@ -166,15 +155,23 @@ void setupI2S() {
             .tx_desc_auto_clear = false,
             .fixed_mclk = 0,
         };
-        i2s_pin_config_t pin_config = {
-            .bck_io_num = Config::ADC::Pins::BCK,
-            .ws_io_num = Config::ADC::Pins::WS,
-            .data_out_num = Config::ADC::Pins::DO,
-            .data_in_num = Config::ADC::Pins::DI              //Not used
-        };
-        i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, 0, NULL);
-        i2s_set_pin(Config::ADC::I2S_NUM, &pin_config);
-        i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+    i2s_pin_config_t pin_config = {
+        .bck_io_num = Config::ADC::Pins::BCK,
+        .ws_io_num = Config::ADC::Pins::WS,
+        .data_out_num = Config::ADC::Pins::DO,
+        .data_in_num = Config::ADC::Pins::DI              //Not used
+    };
+    i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, 0, NULL);
+    i2s_set_pin(Config::ADC::I2S_NUM, &pin_config);
+    i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+}
+
+void setup_adc() {
+
+}
+
+void setup_i2s() {
+    setup_dac();
 }
 
 void vAudioLoop(void* param) {    
@@ -199,7 +196,7 @@ void vControlLoop(void* param) {
 
 void setup() {
     unit_test();
-    setupI2S();
+    setup_i2s();
     xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 2, NULL, 1);
     xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 1, NULL, 0);
 }

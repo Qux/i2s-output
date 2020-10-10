@@ -20,9 +20,19 @@ namespace Config {
             const int BCK = 13;
             const int WS = 15;
             const int DO = 12;
-            const int DI = -1;
+            const int DI = I2S_PIN_NO_CHANGE;
         }
     }    
+    
+    namespace DAC {
+        const i2s_port_t I2S_NUM = I2S_NUM_1;
+        namespace Pins {
+            const int BCK = 26;
+            const int WS = 25;
+            const int DO = I2S_PIN_NO_CHANGE;
+            const int DI = 22;
+        }
+    }
 };
 
 #endif
