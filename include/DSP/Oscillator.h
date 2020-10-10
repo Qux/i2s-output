@@ -1,11 +1,19 @@
-#include <Arduino.h>
+// #include <Arduino.h>
 #include "Config.h"
+
+#include <cmath>
 
 class Oscillator {
 public:
     Oscillator() {
         phase = 0.0;
+        freq = 440;
     }
+
+    Oscillator(std::size_t _freq) {
+        freq = _freq;
+    }
+
 
     template<typename T>
     void setFreq(T _freq) {
@@ -32,4 +40,9 @@ private:
     float freq_reciprocal;
     float phase_inc;
     float phase;
+
+    #ifndef TWO_PI
+    static constexpr float TWO_PI = M_PI * 2.0;    
+    #endif // !TWO_PI
+
 };
