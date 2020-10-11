@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2s.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "esp_system.h"
+#include "esp32/spiram.h"
 
 
 #include <cmath>
@@ -12,6 +15,7 @@
 #include <limits>
 #include <iostream>
 #include <functional>
+#include <thread>
 
 #include "Config.h"
 #include "DSP/DelayLine.h"
@@ -20,69 +24,21 @@
 #include "Util/Static_FIFO.h"
 
 typedef std::array<int32_t, Config::Buffer_Length * Config::Channels> audiobuf_t;
-
-/*
-static void setup_triangle_sine_waves(int bits) {   
-    constexpr int len = ((24+8)/16)*SAMPLE_PER_CYCLE*4;
-    int *samples_data = (int *)malloc(((bits+8)/16)*SAMPLE_PER_CYCLE*4);    // What are these: 8, 16, 4? (bits+8)/16 detects either 16 bit or 32 bit and 4 = 4byte = size of int * 2ch?
-    unsigned int i, sample_val;
-    double sin_float, triangle_float, triangle_step = (double) pow(2, bits) / SAMPLE_PER_CYCLE;
-    size_t i2s_bytes_write = 0;
-
-    printf("\r\nTest bits=%d free mem=%d, written data=%d\n", bits, esp_get_free_heap_size(), static_cast<int>(((bits+8)/16)*SAMPLE_PER_CYCLE*4));
-
-    triangle_float = -(std::pow(2, bits)/2 - 1);
-
-    for(i = 0; i < SAMPLE_PER_CYCLE; i++) {
-        sin_float = sin(i * 2 * M_PI / SAMPLE_PER_CYCLE);
-        if(sin_float >= 0)
-            triangle_float += triangle_step;
-        else
-            triangle_float -= triangle_step;
-
-        sin_float *= (std::pow(2, bits)/2 - 1);
-
-        if (bits == 16) {
-            sample_val = 0;
-            sample_val += (short)triangle_float;
-            sample_val = sample_val << 16;
-            sample_val += (short) sin_float;
-            samples_data[i] = sample_val;
-        } else if (bits == 24) { //1-bytes unused
-            samples_data[i*2] = ((int) triangle_float) << 8;
-            samples_data[i*2 + 1] = ((int) sin_float) << 8;
-        } else {
-            samples_data[i*2] = ((int) triangle_float);
-            samples_data[i*2 + 1] = ((int) sin_float);
-        }
-
-    }
-
-    // i2s_set_clk(I2S_NUM, SAMPLE_RATE, bits, 2);
-
-    // i2s_set_clk(I2S_NUM, SAMPLE_RATE, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
-    i2s_set_clk(I2S_NUM, SAMPLE_RATE, static_cast<i2s_bits_per_sample_t>(bits), I2S_CHANNEL_STEREO);
-    //Using push
-    // for(i = 0; i < SAMPLE_PER_CYCLE; i++) {
-    //     if (bits == 16)
-    //         i2s_push_sample(0, &samples_data[i], 100);
-    //     else
-    //         i2s_push_sample(0, &samples_data[i*2], 100);
-    // }
-    // or write
-    i2s_write(I2S_NUM, samples_data, ((bits+8)/16)*SAMPLE_PER_CYCLE*4, &i2s_bytes_write, 100);
-    
-
-    free(samples_data);
-}
-*/
-
-
-// Oscillator osc;
+typedef Static_FIFO<audiobuf_t, Config::Buffer_Count> fifobuffer_t;
 
 void unit_test() {
+    std::cout << "Beginning unit test...\n" << std::endl;
+
+    #ifdef BOARD_HAS_PSRAM
+    // printf("SPIRAM FOUND - %d\n", esp_spiram_get_size());
+    printf("SPIRAM FOUND\n");
+    #endif // DEBUG
+    #ifdef CONFIG_SPIRAM_USE
+    printf("SPIRAM ENABLED\n");
+    #endif
+
     using namespace UnitTest;
-    std::cout << "Beginning unit test..." << std::endl;
+    
     DelayLine<int, 10> idelay;    
     assert_equal(idelay.get(0), 0);
     idelay.add(1);    
@@ -104,83 +60,87 @@ void unit_test() {
     assert_equal(fdelay.get(3), 0.0);
     assert_equal(fdelay.get(4), 0.0);
 
+    std::cout << "Static FIFO testing..." << std::endl;
+    Static_FIFO<int, 5> fifo;
+    assert_equal(fifo.has_queue(), 0, true);
+    fifo.push(0);    
+    assert_equal(fifo.has_queue(), 1);    
+    assert_equal(fifo.pop(), 0);
+    assert_equal(fifo.has_queue(), 0);
+
+    fifo.push(1);
+    fifo.push(2);
+    fifo.push(3);
+    assert_equal(fifo.has_queue(), 3);    
+    assert_equal(fifo.pop(), 1);
+    assert_equal(fifo.pop(), 2);
+    assert_equal(fifo.pop(), 3);
+
     std::cout << "finished Unit test " << std::endl;
 }
 
 
-/*
-float audioSample() {
-    // static int freq = 440;
-    static Oscillator osc;
-    float val = osc.getNext();
-    osc.setFreq(freq);
-    return val;
-}
+// void process_audio() {
+//     static std::array<int32_t, Config::Buffer_Length * Config::Channels> buf;
+//     std::size_t i2s_bytes_read = 0;
+//     i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
 
-void dsp() {
-    // static double phase = 0.0;
-    static std::array<int32_t, Config::Buffer_Length> sample_buffer;
-
-    constexpr int numLoop = sample_buffer.size() / 2;
-    for(int i = 0; i < numLoop; i++) {        
-        const uint32_t val = static_cast<int32_t>(audioSample() * Config::range) << 8;  
-                
-        sample_buffer[i * 2] = val;
-        sample_buffer[i * 2 + 1] = val;
-        // phase += Config::phase_per_sample;
-        // if (1.0 <= phase) {
-        //     phase = 0.0;
-        // } 
-        // step_count++;
-    }
+//     for(std::size_t i = 0; i < Config::Buffer_Length; i++) {
+//         dsp(static_cast<float>(buf[2 * i]) * Config::Bit_Range_Reciprocal, static_cast<float>(buf[2 * i + 1]) * Config::Bit_Range_Reciprocal);
+//     }
     
-    size_t i2s_bytes_write = 0;    
-    i2s_write(Config::ADC::I2S_NUM, sample_buffer.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
-}
-*/
-
-void dsp(float& ch0, float& ch1) {
-    
-}
+//     size_t i2s_bytes_write = 0;        
+//     i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+// }
 
 
-void process_audio() {
-    static std::array<int32_t, Config::Buffer_Length * Config::Channels> buf;
-    std::size_t i2s_bytes_read = 0;
-    i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
-
-    for(std::size_t i = 0; i < Config::Buffer_Length; i++) {
-        dsp(static_cast<float>(buf[2 * i]) * Config::Bit_Range_Reciprocal, static_cast<float>(buf[2 * i + 1]) * Config::Bit_Range_Reciprocal);
-    }
-    
-    size_t i2s_bytes_write = 0;        
-    i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
-}
-
-
-void vAudioReadLoop(Static_FIFO<audiobuf_t, Config::Buffer_Count>& buf) {
+void vAudioReadThread(void* param) {
+    fifobuffer_t* buf = (fifobuffer_t*)param;
     while(true) {
-        if(buf.available()) {
-            audiobuf_t tmpbuf;
-
+        if(buf->has_space()) {
+            // static audiobuf_t tmpbuf;
             std::size_t i2s_bytes_read = 0;
-            i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
-
-            buf.push(tmpbuf);
-        }
+            i2s_read(Config::ADC::I2S_NUM, buf->push(), Config::I2S_Buffer_Size, &i2s_bytes_read, 100);  
+        }      
     }
 }
 
-void vAudioWriteLoop(Static_FIFO<audiobuf_t, Config::Buffer_Count>& buf) {
+
+void vAudioWriteThread(void* param) {       
+    fifobuffer_t* buf = (fifobuffer_t*)param;
+    printf("IN THREAD: %p\n", buf);
     while(true) {
-        if(buf.count() != 0) {
-            audiobuf_t& samples = buf.pop();
-
+        if(buf->has_queue() != 0 ) {   
+            audiobuf_t& samples = buf->pop();
             // DSP HERE
-
-            size_t i2s_bytes_write = 0;        
+            size_t i2s_bytes_write = 0;
             i2s_write(Config::DAC::I2S_NUM, samples.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
         }
+        vTaskDelay(1);
+    }
+}
+
+void vAudioLoop(void* param) {
+    // static fifobuffer_t buf;      
+    // // xTaskCreatePinnedToCore(vAudioReadThread, "Audio Read Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
+    // xTaskCreatePinnedToCore(vAudioWriteThread, "Audio Write Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
+    // printf("OUT THREAD: %p\n", &buf);
+    // while(true) {        
+    //     if(buf.has_space()) {
+    //         // static audiobuf_t tmpbuf;
+    //         std::size_t i2s_bytes_read = 0;
+    //         i2s_read(Config::ADC::I2S_NUM, buf.push(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);  
+    //     }   
+    //     vTaskDelay(1);    
+    // }
+
+    static audiobuf_t buf;
+    while(true) {
+        std::size_t i2s_bytes_read = 0;
+        i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
+        
+        size_t i2s_bytes_write = 0;        
+        i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
     }
 }
 
@@ -192,7 +152,7 @@ void setup_adc() {
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
         .communication_format = I2S_COMM_FORMAT_I2S_MSB,  //I2S_COMM_FORMAT_STAND_MSB - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
-        .dma_buf_count = 4,
+        .dma_buf_count = Config::Buffer_Count,
         .dma_buf_len = Config::Buffer_Length * Config::Channels, //64,
         .use_apll = true,
         .tx_desc_auto_clear = false,
@@ -222,7 +182,7 @@ void setup_dac() {
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
         .communication_format = I2S_COMM_FORMAT_I2S,  //I2S_COMM_FORMAT_STAND_MSB - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
-        .dma_buf_count = 4,
+        .dma_buf_count = Config::Buffer_Count,
         .dma_buf_len = Config::Buffer_Length * Config::Channels,//64,   samples
         .use_apll = true,
         .tx_desc_auto_clear = false,
@@ -277,17 +237,6 @@ void setup_clock() {
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);   
 }
 
-
-
-void vAudioLoop(void* param) {    
-    while(true) {
-        process_audio();
-        // dsp();
-        // vPortYield();
-        // vTaskDelay(1);
-    }
-}
-
 void vControlLoop(void* param) {
     constexpr TickType_t interval = 1000 / portTICK_PERIOD_MS;
     while (true)    {
@@ -295,30 +244,22 @@ void vControlLoop(void* param) {
     }
 }
 
-// void setup() {
-//     unit_test();
-//     setup_i2s();
-//     xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 2, NULL, 1);
-//     xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 1, NULL, 0);
-// }
-
-// void loop() {
-
-// }
 
 
 extern "C" void app_main(void) {
-    // initArduino();
+    unit_test();
+    // vTaskDelay(100 / portTICK_PERIOD_MS);
+
     setup_clock();
     setup_i2s();
 
-    
-    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 2, NULL, 1);
-    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 1, NULL, 0);
-    // xTaskCreatePinnedToCore(vAudioReadLoop, "Audio Read Loop", 4096, NULL, 2, NULL, 0);
-    // xTaskCreatePinnedToCore(vAudioReadLoop, "Audio Read Loop", 4096, NULL, 2, NULL, 0);
-    constexpr TickType_t interval = 1000 / portTICK_PERIOD_MS;
-    while (1) {
+    // vTaskDelay(100 / portTICK_PERIOD_MS);
+
+    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 0, NULL, 0); //tskNO_AFFINITY   
+
+    constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
+    while (true) {                
         vTaskDelay(interval);
     }
 }

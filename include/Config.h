@@ -11,12 +11,12 @@ namespace Config {
     constexpr int Sampling_Rate = 48000;
     constexpr float Sampling_Rate_Reciprocal = 1.0 / static_cast<float>(Sampling_Rate);
     constexpr i2s_bits_per_sample_t Bit_Rate = I2S_BITS_PER_SAMPLE_32BIT;
-    constexpr std::size_t Bit_Range = (std::pow(2, static_cast<int>(Bit_Rate))/2 - 1);
+    constexpr std::size_t Bit_Range = std::pow(2, static_cast<int>(Bit_Rate))/2 - 1;
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
     
     constexpr std::size_t Channels = 2;
     constexpr std::size_t Buffer_Count = 4;
-    constexpr std::size_t Buffer_Length = 128;
+    constexpr std::size_t Buffer_Length = 512;
     constexpr std::size_t SampleSize_Byte = 4; 
     constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * SampleSize_Byte;
 
@@ -39,8 +39,6 @@ namespace Config {
             const int DI = I2S_PIN_NO_CHANGE;
         }
     }
-
-
 };
 
 #endif
