@@ -56,6 +56,10 @@ public:
     //     return buf[out++];
     // }
 
+    constexpr std::size_t size() const {
+        return N;
+    }
+
     std::size_t has_space() const {
         return N - total - 1;
     }

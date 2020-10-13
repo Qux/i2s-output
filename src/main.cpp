@@ -1,6 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
+/** C++ **/
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <array>
+#include <limits>
+#include <iostream>
+#include <functional>
+#include <thread>
 
+/* ESP32 */
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2s.h"
@@ -9,14 +17,7 @@
 #include "esp_system.h"
 #include "esp32/spiram.h"
 
-
-#include <cmath>
-#include <array>
-#include <limits>
-#include <iostream>
-#include <functional>
-#include <thread>
-
+/* Original */
 #include "Config.h"
 #include "DSP/DelayLine.h"
 #include "DSP/Oscillator.h"
