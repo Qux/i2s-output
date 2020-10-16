@@ -7,6 +7,7 @@
 #include <iostream>
 #include <functional>
 #include <thread>
+#include <chrono>
 
 /* ESP32 */
 #include "freertos/FreeRTOS.h"
@@ -24,8 +25,22 @@
 #include "UnitTest.h"
 #include "Util/Static_FIFO.h"
 
-typedef std::array<int32_t, Config::Buffer_Length * Config::Channels> audiobuf_t;
-typedef Static_FIFO<audiobuf_t, Config::Buffer_Count> fifobuffer_t;
+typedef std::array<int32_t, Config::ADC::DMA::Buffer_Length * Config::Channels> audiobuf_t;
+typedef Static_FIFO<audiobuf_t, Config::ADC::DMA::Buffer_Count> fifobuffer_t;
+
+struct measure_t {
+    std::size_t da;
+    std::size_t ad;
+};
+
+volatile measure_t measure_data;
+
+struct buffer_container_t {
+    Static_FIFO<int32_t, 8192> DA_buffer;
+    Static_FIFO<int32_t, 8192> AD_buffer;
+}
+
+void setup_i2s();
 
 void unit_test() {
     std::cout << "Beginning unit test...\n" << std::endl;
@@ -101,7 +116,7 @@ void vAudioReadThread(void* param) {
         if(buf->has_space()) {
             // static audiobuf_t tmpbuf;
             std::size_t i2s_bytes_read = 0;
-            i2s_read(Config::ADC::I2S_NUM, buf->push(), Config::I2S_Buffer_Size, &i2s_bytes_read, 100);  
+            i2s_read(Config::ADC::I2S_NUM, buf->push(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);  
         }      
     }
 }
@@ -115,13 +130,14 @@ void vAudioWriteThread(void* param) {
             audiobuf_t& samples = buf->pop();
             // DSP HERE
             size_t i2s_bytes_write = 0;
-            i2s_write(Config::DAC::I2S_NUM, samples.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+            i2s_write(Config::DAC::I2S_NUM, samples.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
         }
         vTaskDelay(1);
     }
 }
 
 void vAudioLoop(void* param) {
+    setup_i2s();
     // static fifobuffer_t buf;      
     // // xTaskCreatePinnedToCore(vAudioReadThread, "Audio Read Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
     // xTaskCreatePinnedToCore(vAudioWriteThread, "Audio Write Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
@@ -134,14 +150,27 @@ void vAudioLoop(void* param) {
     //     }   
     //     vTaskDelay(1);    
     // }
-
+    static std::chrono::system_clock::time_point start,end;    
     static audiobuf_t buf;
+
     while(true) {
-        std::size_t i2s_bytes_read = 0;
-        i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
-        
-        size_t i2s_bytes_write = 0;        
-        i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+
+        static std::size_t i2s_bytes_read = 0;
+        start = std::chrono::system_clock::now();        
+        i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
+        end = std::chrono::system_clock::now();
+
+        measure_data.ad = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        static size_t i2s_bytes_write = 0;        
+        start = std::chrono::system_clock::now();        
+        i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+        end = std::chrono::system_clock::now();
+
+        // const auto da_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        measure_data.da = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        // std::cout << ", DA: " << da_duration << " us, write: " << i2s_bytes_write << std::endl;
     }
 }
 
@@ -153,11 +182,11 @@ void setup_adc() {
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
         .communication_format = I2S_COMM_FORMAT_I2S_MSB,  //I2S_COMM_FORMAT_STAND_MSB - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
-        .dma_buf_count = Config::Buffer_Count,
-        .dma_buf_len = Config::Buffer_Length * Config::Channels, //64,
+        .dma_buf_count = Config::ADC::DMA::Buffer_Count,
+        .dma_buf_len = Config::ADC::DMA::Buffer_Length, //64,
         .use_apll = true,
         .tx_desc_auto_clear = false,
-        .fixed_mclk = 0, //Config::Sampling_Rate * 256,
+        .fixed_mclk = Config::Sampling_Rate * 256,
     };
     i2s_pin_config_t pin_config = {
         .bck_io_num = Config::ADC::Pins::BCK,
@@ -167,6 +196,7 @@ void setup_adc() {
     };
     i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, 0, NULL);
     i2s_set_pin(Config::ADC::I2S_NUM, &pin_config);
+    i2s_zero_dma_buffer(Config::ADC::I2S_NUM);
     i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
 }
 
@@ -183,8 +213,8 @@ void setup_dac() {
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
         .communication_format = I2S_COMM_FORMAT_I2S,  //I2S_COMM_FORMAT_STAND_MSB - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
-        .dma_buf_count = Config::Buffer_Count,
-        .dma_buf_len = Config::Buffer_Length * Config::Channels,//64,   samples
+        .dma_buf_count = Config::DAC::DMA::Buffer_Count,
+        .dma_buf_len = Config::DAC::DMA::Buffer_Length,//64,   samples
         .use_apll = true,
         .tx_desc_auto_clear = false,
         .fixed_mclk = 0,
@@ -197,6 +227,7 @@ void setup_dac() {
     };
     i2s_driver_install(Config::DAC::I2S_NUM, &i2s_config, 0, NULL);
     i2s_set_pin(Config::DAC::I2S_NUM, &pin_config);
+    i2s_zero_dma_buffer(Config::DAC::I2S_NUM);
     i2s_set_clk(Config::DAC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
 }
 
@@ -209,7 +240,7 @@ void setup_i2s() {
 
 void setup_clock() {
     const ledc_channel_t channel = LEDC_CHANNEL_0;
-    const std::size_t freq = 12288000;
+    constexpr std::size_t freq = Config::Sampling_Rate * 256;
     const int gpio_pin = 18; 
 
     ledc_timer_config_t ledc_timer {
@@ -241,6 +272,7 @@ void setup_clock() {
 void vControlLoop(void* param) {
     constexpr TickType_t interval = 1000 / portTICK_PERIOD_MS;
     while (true)    {
+        printf("AD: %d, DA: %d\n", measure_data.ad, measure_data.da);
         vTaskDelay(interval);        
     }
 }
@@ -251,13 +283,17 @@ extern "C" void app_main(void) {
     unit_test();
     // vTaskDelay(100 / portTICK_PERIOD_MS);
 
+    std::cout << "Int Size: " << sizeof(int) << std::endl;
+    constexpr auto tick_dur_ms = 1000 / portTICK_PERIOD_MS;
+    std::cout << "Tick Size: " << tick_dur_ms << std::endl;
+
     setup_clock();
-    setup_i2s();
+    
 
     // vTaskDelay(100 / portTICK_PERIOD_MS);
 
     xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 5, NULL, 1);
-    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 4096, NULL, 0, NULL, 0); //tskNO_AFFINITY   
+    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 8192, NULL, 0, NULL, 0); //tskNO_AFFINITY   
 
     constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
     while (true) {                

@@ -1,8 +1,11 @@
 #pragma once
 
 #ifndef STATIC_FIFO_H
+#define STATIC_FIFO_H
 
+#include <iostream>
 #include <cstddef>
+#include <cstdint>
 #include <array>
 #include <mutex>
 
@@ -17,7 +20,8 @@ public:
     }
     void push(const T& elm) {
         std::lock_guard<std::mutex> lock(mutex);
-        buf[in] = T(elm);
+        buf[in] = elm;
+        
         in++;
         total++;
 
@@ -47,6 +51,12 @@ public:
         return buf[out++];
     }
 
+    void append(const T* data_head, const std::size_t count) {
+        for(std::size_t i = 0; i < count; i++) {
+            this->push(static_cast<T>(data_head));
+        }
+    }
+
     // const T& pop() {
     //     std::lock_guard<std::mutex> lock(mutex);
     //     if(out == N) {
@@ -70,7 +80,7 @@ public:
 
 
 private:
-    std::array<T, N> buf;
+    std::array<T, N> buf = {};
     std::size_t in, out, total;
     std::mutex mutex;
 

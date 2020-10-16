@@ -3,6 +3,9 @@
         "limits": "cpp",
         "iostream": "cpp",
         "thread": "cpp",
-        "*.ipp": "cpp"
-    }
+        "*.ipp": "cpp",
+        "ostream": "cpp",
+        "chrono": "cpp"
+    },
+    "cmake.configureOnOpen": true
 }

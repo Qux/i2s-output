@@ -15,13 +15,17 @@ namespace Config {
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
     
     constexpr std::size_t Channels = 2;
-    constexpr std::size_t Buffer_Count = 4;
-    constexpr std::size_t Buffer_Length = 512;
-    constexpr std::size_t SampleSize_Byte = 4; 
-    constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * SampleSize_Byte;
 
     namespace ADC {
         const i2s_port_t I2S_NUM = I2S_NUM_0;
+
+        namespace DMA {
+            constexpr std::size_t Buffer_Count = 2;
+            constexpr std::size_t Buffer_Length = 512;
+            constexpr std::size_t Size_byte = sizeof(int);
+            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * Size_byte;
+        }
+
         namespace Pins {
             const int BCK = 13;
             const int WS = 16;
@@ -32,6 +36,14 @@ namespace Config {
 
     namespace DAC {
         const i2s_port_t I2S_NUM = I2S_NUM_1;
+
+        namespace DMA {
+            constexpr std::size_t Buffer_Count = 2;
+            constexpr std::size_t Buffer_Length = 512;
+            constexpr std::size_t Size_byte = sizeof(int); 
+            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * Size_byte;
+        }
+
         namespace Pins {
             const int BCK = 26;
             const int WS = 25;
