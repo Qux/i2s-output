@@ -28,17 +28,11 @@
 typedef std::array<int32_t, Config::ADC::DMA::Buffer_Length * Config::Channels> audiobuf_t;
 typedef Static_FIFO<audiobuf_t, Config::ADC::DMA::Buffer_Count> fifobuffer_t;
 
-struct measure_t {
-    std::size_t da;
-    std::size_t ad;
-};
-
-volatile measure_t measure_data;
 
 struct buffer_container_t {
-    Static_FIFO<int32_t, 8192> DA_buffer;
-    Static_FIFO<int32_t, 8192> AD_buffer;
-}
+    Static_FIFO<int32_t, 8192> DA;
+    Static_FIFO<int32_t, 8192> AD;
+};
 
 void setup_i2s();
 
@@ -96,82 +90,35 @@ void unit_test() {
 }
 
 
-// void process_audio() {
-//     static std::array<int32_t, Config::Buffer_Length * Config::Channels> buf;
-//     std::size_t i2s_bytes_read = 0;
-//     i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
-
-//     for(std::size_t i = 0; i < Config::Buffer_Length; i++) {
-//         dsp(static_cast<float>(buf[2 * i]) * Config::Bit_Range_Reciprocal, static_cast<float>(buf[2 * i + 1]) * Config::Bit_Range_Reciprocal);
-//     }
-    
-//     size_t i2s_bytes_write = 0;        
-//     i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
-// }
-
 
 void vAudioReadThread(void* param) {
     fifobuffer_t* buf = (fifobuffer_t*)param;
     while(true) {
         if(buf->has_space()) {
             // static audiobuf_t tmpbuf;
-            std::size_t i2s_bytes_read = 0;
-            i2s_read(Config::ADC::I2S_NUM, buf->push(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);  
-        }      
+            static std::size_t i2s_bytes_read = 0;
+            i2s_read(Config::ADC::I2S_NUM, buf->push(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY); 
+        }   
+        vTaskDelay(1);   
     }
 }
 
 
 void vAudioWriteThread(void* param) {       
-    fifobuffer_t* buf = (fifobuffer_t*)param;
-    printf("IN THREAD: %p\n", buf);
+    fifobuffer_t* buf = (fifobuffer_t*)param;    
     while(true) {
         if(buf->has_queue() != 0 ) {   
             audiobuf_t& samples = buf->pop();
             // DSP HERE
-            size_t i2s_bytes_write = 0;
+            static size_t i2s_bytes_write = 0;
             i2s_write(Config::DAC::I2S_NUM, samples.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
         }
         vTaskDelay(1);
     }
 }
 
-void vAudioLoop(void* param) {
-    setup_i2s();
-    // static fifobuffer_t buf;      
-    // // xTaskCreatePinnedToCore(vAudioReadThread, "Audio Read Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
-    // xTaskCreatePinnedToCore(vAudioWriteThread, "Audio Write Loop", 4096, &buf, 0, NULL, 0); //tskNO_AFFINITY   
-    // printf("OUT THREAD: %p\n", &buf);
-    // while(true) {        
-    //     if(buf.has_space()) {
-    //         // static audiobuf_t tmpbuf;
-    //         std::size_t i2s_bytes_read = 0;
-    //         i2s_read(Config::ADC::I2S_NUM, buf.push(), Config::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);  
-    //     }   
-    //     vTaskDelay(1);    
-    // }
-    static std::chrono::system_clock::time_point start,end;    
-    static audiobuf_t buf;
+void vDSPThread(void* param) {
 
-    while(true) {
-
-        static std::size_t i2s_bytes_read = 0;
-        start = std::chrono::system_clock::now();        
-        i2s_read(Config::ADC::I2S_NUM, buf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);
-        end = std::chrono::system_clock::now();
-
-        measure_data.ad = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-        static size_t i2s_bytes_write = 0;        
-        start = std::chrono::system_clock::now();        
-        i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
-        end = std::chrono::system_clock::now();
-
-        // const auto da_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-        measure_data.da = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-        // std::cout << ", DA: " << da_duration << " us, write: " << i2s_bytes_write << std::endl;
-    }
 }
 
 void setup_adc() {
@@ -272,7 +219,6 @@ void setup_clock() {
 void vControlLoop(void* param) {
     constexpr TickType_t interval = 1000 / portTICK_PERIOD_MS;
     while (true)    {
-        printf("AD: %d, DA: %d\n", measure_data.ad, measure_data.da);
         vTaskDelay(interval);        
     }
 }
@@ -288,12 +234,15 @@ extern "C" void app_main(void) {
     std::cout << "Tick Size: " << tick_dur_ms << std::endl;
 
     setup_clock();
-    
+    setup_i2s();
 
     // vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 5, NULL, 1);
-    xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 8192, NULL, 0, NULL, 0); //tskNO_AFFINITY   
+    fifobuffer_t* buf = new fifobuffer_t;
+    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 5, NULL, tskNO_AFFINITY);
+    // xTaskCreatePinnedToCore(vAudioLoop, "AudioLoop", 8192, NULL, 0, NULL, 0); //tskNO_AFFINITY   
+    xTaskCreatePinnedToCore(vAudioWriteThread, "AudioWriteLoop", 8192, buf, 0, NULL, tskNO_AFFINITY); //tskNO_AFFINITY   
+    xTaskCreatePinnedToCore(vAudioReadThread, "AudioReedLoop", 8192, buf, 0, NULL, tskNO_AFFINITY); //tskNO_AFFINITY   
 
     constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
     while (true) {                
