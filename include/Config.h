@@ -11,7 +11,8 @@ namespace Config {
     constexpr int Sampling_Rate = 48000;
     constexpr float Sampling_Rate_Reciprocal = 1.0 / static_cast<float>(Sampling_Rate);
     constexpr i2s_bits_per_sample_t Bit_Rate = I2S_BITS_PER_SAMPLE_32BIT;
-    constexpr std::size_t Bit_Range = std::pow(2, static_cast<int>(Bit_Rate))/2 - 1;
+    constexpr std::size_t Bit_Range = std::pow(2, static_cast<int>(Bit_Rate) - 1) - 1; // 8388607
+    
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
     
     constexpr std::size_t Channels = 2;
@@ -20,10 +21,10 @@ namespace Config {
         const i2s_port_t I2S_NUM = I2S_NUM_0;
 
         namespace DMA {
-            constexpr std::size_t Buffer_Count = 8;
-            constexpr std::size_t Buffer_Length = 512;
+            constexpr std::size_t Buffer_Count = 4;
+            constexpr std::size_t Buffer_Length = Channels * 512;
             constexpr std::size_t Size_byte = sizeof(int);
-            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * Size_byte;
+            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
         }
 
         namespace Pins {
@@ -45,9 +46,9 @@ namespace Config {
         }
 
         namespace Pins {
-            const int BCK = 26;
-            const int WS = 25;
-            const int DO = 22;
+            const int BCK = 27;
+            const int WS = 26;
+            const int DO = 25;
             const int DI = I2S_PIN_NO_CHANGE;
         }
     }

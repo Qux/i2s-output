@@ -30,7 +30,7 @@ public:
         if (TWO_PI <= phase) {
             phase = 0.0;
         }
-        return sinf(phase);
+        return sin(phase);
     }    
     void reset() {
         phase = 0.0;

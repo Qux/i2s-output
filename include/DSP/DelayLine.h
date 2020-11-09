@@ -42,7 +42,7 @@ public:
 
         this->buffer[z0_index] = value;                
     }
-
+    
     const T& get(std::size_t z_index) const {
         return buffer.at(get_index_on_buffer(z_index));
     }
