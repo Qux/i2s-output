@@ -21,7 +21,7 @@ namespace Config {
         const i2s_port_t I2S_NUM = I2S_NUM_0;
 
         namespace DMA {
-            constexpr std::size_t Buffer_Count = 4;
+            constexpr std::size_t Buffer_Count = 8;
             constexpr std::size_t Buffer_Length = Channels * 512;
             constexpr std::size_t Size_byte = sizeof(int);
             constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
