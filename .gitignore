@@ -38,4 +38,14 @@
 *.out
 *.app
 
+# pio 
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.pio
+
+# build
+build
+
 # End of https://www.toptal.com/developers/gitignore/api/c++
