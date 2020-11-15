@@ -172,8 +172,8 @@ void vAudioWriteTask(void* param) {
 
     while(true) {
         std::cout << "Loop begin" << std::endl;
-        i2s_event_t evt;
-        if (xQueueReceive(m_i2sQueue, &evt, portMAX_DELAY) == pdPASS && evt.type == I2S_EVENT_TX_DONE)   {
+        // i2s_event_t evt;
+        // if (xQueueReceive(m_i2sQueue, &evt, portMAX_DELAY) == pdPASS && evt.type == I2S_EVENT_TX_DONE)   {
             /*
             Something is wrong with writing - there're some glitch
         */
@@ -198,8 +198,9 @@ void vAudioWriteTask(void* param) {
             // i2s_write(Config::DAC::I2S_NUM, samples.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
             i2s_write(Config::DAC::I2S_NUM, tmpbuf.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
 
+            vTaskDelay(1);
         // }
-        }
+        // }
                 std::cout << "Loop end" << std::endl;
     }
 }
