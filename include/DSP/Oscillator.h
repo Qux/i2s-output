@@ -6,32 +6,73 @@
 #include <cmath>
 
 class Oscillator {
-public:
-    Oscillator() {
+public: 
+    enum Waveform {
+        Sin,
+        Cos,
+        Triangle,
+        Square,
+        Sawtooth,
+    };
+
+    Oscillator(Waveform _waveform = Sin) {
         phase = 0.0;
-        freq = 440;
+        freq = 0;
+        waveform = _waveform;
     }
 
-    Oscillator(std::size_t _freq) {
+    Oscillator(std::size_t _freq, Waveform _waveform = Sin) {
         freq = _freq;
+        waveform = _waveform;
     }
 
-
-    template<typename T>
-    void setFreq(T _freq) {
-        freq = static_cast<float>(_freq);
+    void setWaveform(const Waveform _waveform) {
+        waveform = _waveform;
+    }
+    
+    void setFreq(const float _freq) {
         freq_reciprocal = 1.0 / freq;
         phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
     }
 
-    float getNext() { //returns -1.0 ~ 1.0        
-        phase += phase_inc; 
+    float getNext() { 
+        /*
+        - Proceeds the oscillator
+        - returns -1.0 ~ 1.0
+        */    
+        switch (waveform) {
+            case Sin:
+                phase += phase_inc; 
 
-        if (TWO_PI <= phase) {
-            phase = 0.0;
+                if (TWO_PI <= phase) {
+                    phase = 0.0;
+                }
+                return sin(phase);
+                break;
+            case Cos:
+                phase += phase_inc; 
+
+                if (TWO_PI <= phase) {
+                    phase = 0.0;
+                }
+                return cos(phase);
+                break;
+            case Triangle:
+                return 0;
+                break;
+            case Square:
+                return 0;
+                break;
+            case Sawtooth:
+                return 0;
+                break;            
+            default:
+                return 0.0;
+                break;
         }
-        return sin(phase);
+        return 0.0;
     }    
+
     void reset() {
         phase = 0.0;
     };
@@ -39,11 +80,14 @@ public:
 
 private:
     float freq;
-    float freq_reciprocal;
-    float phase_inc;
-    float phase;
+    float freq_reciprocal;  // reciprocal of the freqency to redule division.
+    float phase_inc;  // increment value of phase per sample (everytime getNext() called).
+    float phase;    // 0.0 ~ 2pi.
+    Waveform waveform;
 
-    #ifndef TWO_PI
+
+    // If Arduino.h is included this will not be called.
+    #ifndef TWO_PI  
     static constexpr float TWO_PI = M_PI * 2.0;    
     #endif // !TWO_PI
 
