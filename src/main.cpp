@@ -326,6 +326,7 @@ extern "C" void app_main(void) {
     setup_clock();
     setup_i2s();
     
+    
     osc.setFreq(440);
 
     fifobuffer_t* buf = new fifobuffer_t;
