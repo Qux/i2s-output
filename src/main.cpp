@@ -30,6 +30,7 @@
 #include "Config.h"
 #include "Types.h"
 #include "I2S/Writer.h"
+#include "I2S/Reader.h"
 
 #include "DSP/DelayLine.h"
 #include "DSP/Oscillator.h"
@@ -37,8 +38,6 @@
 #include "Util/RangedCounter.h"
 #include "Util/Static_FIFO.h"
 
-
-// Oscillator osc;
 
 
 void setup_i2s();
@@ -114,19 +113,6 @@ void unit_test() {
     std::cout << "finished Unit test " << std::endl;
 }
 
-// void DSP(float& Lch, float& Rch) {
-//     const float vol = osc.getNext();
-
-//     // Lch *= -1;
-//     // Rch *= -1;
-
-//     // Lch >>= 8;
-//     // Rch = 8;
-
-//     // int output = static_cast<int>(vol * range_max);
-//     Lch = vol;
-//     Rch = vol;
-// }
 /*
 void vAudioReadThread(void* param) {
     using namespace Types;
@@ -217,7 +203,6 @@ void vControlLoop(void* param) {
 extern "C" void app_main(void) {
     unit_test();
 
-    using namespace Types;
     setup_clock();
     // setup_i2s();
     
@@ -231,11 +216,25 @@ extern "C" void app_main(void) {
     // xTaskCreatePinnedToCore(vAudioWriteTask, "AudioWriteLoop", 8192, buf, configMAX_PRIORITIES - 1, &writerTaskHandle, tskNO_AFFINITY); //tskNO_AFFINITY   
     // xTaskCreatePinnedToCore(vAudioReadThread, "AudioReedLoop", 8192, buf, configMAX_PRIORITIES - 2, NULL, tskNO_AFFINITY); //tskNO_AFFINITY   
 
-    audiobuf_t* buf  = new audiobuf_t;
+    using namespace Types;
+    fifobuffer_t* buf = new fifobuffer_t;
+
+    std::cout << "Reader init" << std::endl;
+    // I2S::Reader* reader = new I2S::Reader(*buf);
+
+
+    std::cout << "Reader begin" << std::endl;
+    // reader.begin();
+
+    std::cout << "Witer init" << std::endl;    
+    // I2S::Writer writer(*buf);
     I2S::Writer writer;
+
+    std::cout << "Witer begin" << std::endl;
     writer.setAudioBufferPtr(buf);
     writer.begin();
-    
+
+
     constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
     while (true) {                
         vTaskDelay(interval);

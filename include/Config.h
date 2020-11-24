@@ -28,7 +28,7 @@ namespace Config {
         }
 
         namespace Pins {
-            const int BCK = 13;
+            const int BCK = 12;
             const int WS = 16;
             const int DO = I2S_PIN_NO_CHANGE;
             const int DI = 14;
@@ -39,7 +39,7 @@ namespace Config {
         const i2s_port_t I2S_NUM = I2S_NUM_1;
 
         namespace DMA {
-            constexpr std::size_t Buffer_Count = 8;
+            constexpr std::size_t Buffer_Count = 4;
             constexpr std::size_t Buffer_Length = 512;
             constexpr std::size_t Size_byte = sizeof(int); 
             constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * Size_byte;

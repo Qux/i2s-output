@@ -31,6 +31,7 @@ public:
     }
     
     void setFreq(const float _freq) {
+        freq = _freq;
         freq_reciprocal = 1.0 / freq;
         phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
     }
