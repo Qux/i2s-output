@@ -221,11 +221,13 @@ extern "C" void app_main(void) {
 
     std::cout << "Reader init" << std::endl;
     // I2S::Reader* reader = new I2S::Reader(*buf);
-
+    I2S::Reader reader;
+    reader.setBufferPtr(buf);
 
     std::cout << "Reader begin" << std::endl;
-    // reader.begin();
+    reader.begin();
 
+    /*
     std::cout << "Witer init" << std::endl;    
     // I2S::Writer writer(*buf);
     I2S::Writer writer;
@@ -233,10 +235,10 @@ extern "C" void app_main(void) {
     std::cout << "Witer begin" << std::endl;
     writer.setAudioBufferPtr(buf);
     writer.begin();
+    */ 
 
-
-    constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
-    while (true) {                
-        vTaskDelay(interval);
-    }
+    // constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
+    // while (true) {                
+    //     vTaskDelay(interval);
+    // }
 }

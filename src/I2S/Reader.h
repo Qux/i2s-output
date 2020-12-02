@@ -20,21 +20,25 @@ namespace I2S {
     class Reader {
 
         public:
-            Reader(Types::fifobuffer_t& _buf) : buffer(_buf){};
+            // Reader(Types::fifobuffer_t& _buf) : buffer(_buf){};
             void begin();
             inline QueueHandle_t getQueue() const {
                 return queue;
             }
+            void setBufferPtr(Types::fifobuffer_t* _buf) {
+                buffer = _buf;
+            }
+
             friend void audioReadTask(void *param);
         private:
             TaskHandle_t readerTaskHandle;  // I2S reader task
             TaskHandle_t writerTaskHandle;  // writer task        
             QueueHandle_t queue; // i2s reader queue
-            Types::fifobuffer_t& buffer;
+            // Types::fifobuffer_t& buffer;
+            Types::fifobuffer_t* buffer;
     };
 
     void audioReadTask(void* param);
-    
 }
 
 #endif // !READER_H

@@ -11,7 +11,7 @@ void I2S::audioWriteTask(void* param) {
     while(true) {
         std::cout << "Writetask loop has begun" << std::endl;
         i2s_event_t event;
-        if(xQueueReceive(writer->getQueue(), &event, portMAX_DELAY) == pdPASS) {
+        if(xQueueReceive(writer->queue, &event, portMAX_DELAY) == pdPASS) {
             // std::cout << "event on" << std::endl;
             if(event.type == I2S_EVENT_TX_DONE) {   // if transmission is done
                 // std::cout << "TX Event" << std::endl;
