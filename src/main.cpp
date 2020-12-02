@@ -182,20 +182,8 @@ void setup_clock() {
     }
 }
 
-void vControlLoop(void* param) {
-    constexpr TickType_t interval = 1000 / portTICK_PERIOD_MS;
-    while (true)    {
-        
-        // static std::size_t freq = 10;
-        // freq *= 2;
+void updateControl() {
 
-        // if(440 < freq) {
-        //     freq = 10;
-        // }
-
-        // osc.setFreq(freq);
-        vTaskDelay(interval);        
-    }
 }
 
 
@@ -204,6 +192,11 @@ extern "C" void app_main(void) {
     unit_test();
 
     setup_clock();
+
+    gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_12, 1);
+    gpio_set_direction(GPIO_NUM_14, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_14, 1);
     // setup_i2s();
     
     // osc.setFreq(440);
@@ -211,7 +204,6 @@ extern "C" void app_main(void) {
     // fifobuffer_t* buf = new fifobuffer_t;    
     // std::cout << "Buffer space::" << buf->has_space() << std::endl;
 
-    xTaskCreatePinnedToCore(vControlLoop, "ControlLoop", 4096, NULL, 0, NULL, tskNO_AFFINITY);
 
     // xTaskCreatePinnedToCore(vAudioWriteTask, "AudioWriteLoop", 8192, buf, configMAX_PRIORITIES - 1, &writerTaskHandle, tskNO_AFFINITY); //tskNO_AFFINITY   
     // xTaskCreatePinnedToCore(vAudioReadThread, "AudioReedLoop", 8192, buf, configMAX_PRIORITIES - 2, NULL, tskNO_AFFINITY); //tskNO_AFFINITY   
@@ -227,7 +219,7 @@ extern "C" void app_main(void) {
     std::cout << "Reader begin" << std::endl;
     reader.begin();
 
-    /*
+    
     std::cout << "Witer init" << std::endl;    
     // I2S::Writer writer(*buf);
     I2S::Writer writer;
@@ -235,10 +227,11 @@ extern "C" void app_main(void) {
     std::cout << "Witer begin" << std::endl;
     writer.setAudioBufferPtr(buf);
     writer.begin();
-    */ 
+     
 
-    // constexpr TickType_t interval = 100000 / portTICK_PERIOD_MS;
-    // while (true) {                
-    //     vTaskDelay(interval);
-    // }
+    constexpr TickType_t interval = 2 / portTICK_PERIOD_MS;
+    while (true) {                
+        updateControl();
+        vTaskDelay(interval);
+    }
 }

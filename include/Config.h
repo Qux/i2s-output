@@ -28,10 +28,10 @@ namespace Config {
         }
 
         namespace Pins {
-            const int BCK = 12;
-            const int WS = 16;
+            const int BCK = 16;
+            const int WS = 17;
             const int DO = I2S_PIN_NO_CHANGE;
-            const int DI = 14;
+            const int DI = 21;
         }
     }    
 

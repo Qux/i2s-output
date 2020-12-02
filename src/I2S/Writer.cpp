@@ -5,11 +5,13 @@ void I2S::audioWriteTask(void* param) {
     I2S::Writer* writer = static_cast<I2S::Writer*>(param);
     // const std::size_t range = Math::ipow(2, 23) * 0.9 - 1 ;  // * 1.9
 
-    static Types::audiobuf_t tmpbuf;
+    // static Types::audiobuf_t tmpbuf;
     // const std::size_t count = tmpbuf.size() / 2;    
     
+    Types::fifobuffer_t* fifo = writer->getAudioBufferPtr();
+
     while(true) {
-        std::cout << "Writetask loop has begun" << std::endl;
+        // std::cout << "Writetask loop has begun" << std::endl;
         i2s_event_t event;
         if(xQueueReceive(writer->queue, &event, portMAX_DELAY) == pdPASS) {
             // std::cout << "event on" << std::endl;
@@ -17,7 +19,8 @@ void I2S::audioWriteTask(void* param) {
                 // std::cout << "TX Event" << std::endl;
                 std::size_t i2s_bytes_write = 0;
                 // i2s_write(Config::DAC::I2S_NUM, writer->buf->pop().data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
-                i2s_write(Config::DAC::I2S_NUM, tmpbuf.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                i2s_write(Config::DAC::I2S_NUM, fifo->pop().data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                std::cout << "Write : " << i2s_bytes_write << std::endl;
             }
         }
     }
