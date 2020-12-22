@@ -42,7 +42,7 @@ public:
         - returns -1.0 ~ 1.0
         */    
         float t = 0.0;
-        float duty = 0.5; // 0.0 - 1.0
+        float duty = 0.5; // 0.0 < duty < 1.0
 
         switch (waveform) {
             case Sin:
