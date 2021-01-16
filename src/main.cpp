@@ -97,6 +97,15 @@ void unit_test() {
     assert_equal(fifo.pop(), 2);
     assert_equal(fifo.pop(), 3);
 
+    typedef std::array<int, 3> tmptype;
+    Static_FIFO<tmptype, 5> fifo2;
+    tmptype t = {0, 1, 2};
+    fifo2.push(t);
+    const auto result = fifo2.pop();
+    assert_equal(result[0], 0);
+    assert_equal(result[1], 1);
+    assert_equal(result[2], 2);
+
     std::cout << "RangedCounter test beginning..." << std::endl;
     constexpr std::size_t Count_Max = 100;
     RangedCounter<Count_Max> counter;
@@ -191,12 +200,12 @@ void updateControl() {
 extern "C" void app_main(void) {
     unit_test();
 
-    setup_clock();
+    // setup_clock();
 
-    gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_12, 1);
-    gpio_set_direction(GPIO_NUM_14, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_14, 1);
+    // gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
+    // gpio_set_level(GPIO_NUM_12, 1);
+    // gpio_set_direction(GPIO_NUM_14, GPIO_MODE_OUTPUT);
+    // gpio_set_level(GPIO_NUM_14, 1);
     // setup_i2s();
     
     // osc.setFreq(440);
@@ -220,11 +229,11 @@ extern "C" void app_main(void) {
     reader.begin();
 
     
-    std::cout << "Witer init" << std::endl;    
+    std::cout << "Writer init" << std::endl;    
     // I2S::Writer writer(*buf);
     I2S::Writer writer;
 
-    std::cout << "Witer begin" << std::endl;
+    std::cout << "Writer begin" << std::endl;
     writer.setAudioBufferPtr(buf);
     writer.begin();
      

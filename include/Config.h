@@ -28,10 +28,10 @@ namespace Config {
         }
 
         namespace Pins {
-            const int BCK = 16;
-            const int WS = 17;
+            const int BCK = GPIO_NUM_16;
+            const int WS = GPIO_NUM_18;
             const int DO = I2S_PIN_NO_CHANGE;
-            const int DI = 21;
+            const int DI = GPIO_NUM_17;
         }
     }    
 
@@ -46,9 +46,9 @@ namespace Config {
         }
 
         namespace Pins {
-            const int BCK = 27;
-            const int WS = 26;
-            const int DO = 25;
+            const int BCK = GPIO_NUM_27;
+            const int WS = GPIO_NUM_25;
+            const int DO = GPIO_NUM_26;
             const int DI = I2S_PIN_NO_CHANGE;
         }
     }
