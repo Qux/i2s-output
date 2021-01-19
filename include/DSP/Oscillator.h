@@ -13,6 +13,7 @@ public:
         Triangle,
         Square,
         Sawtooth,
+        DC,
     };
 
     Oscillator(Waveform _waveform = Sin) {
@@ -79,7 +80,9 @@ public:
                 break;
             case Sawtooth:
                 return 0;
-                break;            
+                break;
+            case DC:
+                return -0.256;
             default:
                 return 0.0;
                 break;

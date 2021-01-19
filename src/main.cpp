@@ -134,6 +134,9 @@ void DSP(float& Lch, float& Rch) {
     // Rch = 8;
 
     // int output = static_cast<int>(vol * range_max);
+    // const float dc = -0.276;
+    // Lch = dc;
+    // Rch = dc;
     Lch = vol;
     Rch = vol;
 }
@@ -326,7 +329,7 @@ extern "C" void app_main(void) {
     setup_clock();
     setup_i2s();
     
-    osc.setWaveform(osc.Triangle);
+    osc.setWaveform(osc.DC);
     osc.setFreq(800);
 
     fifobuffer_t* buf = new fifobuffer_t;
