@@ -163,7 +163,7 @@ void setup_i2s() {
 void setup_clock() {
     const ledc_channel_t channel = LEDC_CHANNEL_0;
     constexpr std::size_t freq = Config::Sampling_Rate * 256;
-    constexpr std::array<int, 2> gpio_pins = {18, 19}; 
+    constexpr std::array<int, 2> gpio_pins = {32, 33}; 
 
     ledc_timer_config_t ledc_timer {
         .speed_mode = LEDC_HIGH_SPEED_MODE,
@@ -200,7 +200,7 @@ void updateControl() {
 extern "C" void app_main(void) {
     unit_test();
 
-    // setup_clock();
+    setup_clock();
 
     // gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
     // gpio_set_level(GPIO_NUM_12, 1);
