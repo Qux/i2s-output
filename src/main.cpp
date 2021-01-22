@@ -202,32 +202,15 @@ extern "C" void app_main(void) {
 
     setup_clock();
 
-    // gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
-    // gpio_set_level(GPIO_NUM_12, 1);
-    // gpio_set_direction(GPIO_NUM_14, GPIO_MODE_OUTPUT);
-    // gpio_set_level(GPIO_NUM_14, 1);
-    // setup_i2s();
-    
-    // osc.setFreq(440);
-
-    // fifobuffer_t* buf = new fifobuffer_t;    
-    // std::cout << "Buffer space::" << buf->has_space() << std::endl;
-
-
-    // xTaskCreatePinnedToCore(vAudioWriteTask, "AudioWriteLoop", 8192, buf, configMAX_PRIORITIES - 1, &writerTaskHandle, tskNO_AFFINITY); //tskNO_AFFINITY   
-    // xTaskCreatePinnedToCore(vAudioReadThread, "AudioReedLoop", 8192, buf, configMAX_PRIORITIES - 2, NULL, tskNO_AFFINITY); //tskNO_AFFINITY   
-
     using namespace Types;
     fifobuffer_t* buf = new fifobuffer_t;
 
     std::cout << "Reader init" << std::endl;
-    // I2S::Reader* reader = new I2S::Reader(*buf);
     I2S::Reader reader;
     reader.setBufferPtr(buf);
 
     std::cout << "Reader begin" << std::endl;
     reader.begin();
-
     
     std::cout << "Writer init" << std::endl;    
     // I2S::Writer writer(*buf);
@@ -236,8 +219,7 @@ extern "C" void app_main(void) {
     std::cout << "Writer begin" << std::endl;
     writer.setAudioBufferPtr(buf);
     writer.begin();
-     
-
+    
     constexpr TickType_t interval = 2 / portTICK_PERIOD_MS;
     while (true) {                
         updateControl();

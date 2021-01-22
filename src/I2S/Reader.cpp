@@ -4,35 +4,17 @@ void I2S::audioReadTask(void* param) {
     std::cout << "audio read task started." << std::endl;
     I2S::Reader* reader = static_cast<I2S::Reader*>(param);
     
-    
-    // constexpr std::size_t count = tmpbuf.size() / 2;
-    // printf("AD fifo adr: %p\n", reader->buffer); 
-
     Types::audiobuf_t tmpbuf;
-    // tmpbuf.fill(0);
-
-    // Types::audiobuf_t* b = new Types::audiobuf_t;
 
     while(true) {
         // wait for some data to arrive on the queue
         i2s_event_t event;
         if (xQueueReceive(reader->queue, &event, portMAX_DELAY) == pdPASS)  {            
             if (event.type == I2S_EVENT_RX_DONE)  {                    
-                
-                // printf("tmpbuf adr: %p\n", &tmpbuf); 
-
                 // placeholder to count incoming data bytes
                 std::size_t i2s_bytes_read = 0;
                 // read from i2s                
                 i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);                       
-
-                // std::cout << "Read : " << i2s_bytes_read << ":";
-                
-                // for(const auto sample: tmpbuf) {
-                //     std::cout << sample << ":";
-                // }
-
-                // std::cout << std::endl;
 
                 for(std::size_t i = 0; i < 512; i++) {
                     float lch = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
@@ -79,6 +61,5 @@ void I2S::Reader::begin() {
     // i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
     i2s_zero_dma_buffer(Config::ADC::I2S_NUM);
     
-    // readTaskHandle; // Could be NULL?    
     xTaskCreate(audioReadTask, "I2S Reader Task", 8192, this, 1, &readerTaskHandle);
 }
