@@ -5,9 +5,12 @@
 
 #include "DSP/Oscillator.h"
 
+
+
 inline void DSP(float& Lch, float& Rch) {
-    Oscillator osc(440, Oscillator::Waveform::Sin);     
-    const float vol = osc.getNext();
+    static Oscillator* osc = new Oscillator(1, Oscillator::Waveform::Sin);         
+    osc->setFreq(1);
+    const float vol = osc->getNext();
     // std::cout << "Vol: " << vol << std::endl;
     // Lch *= -1;
     // Rch *= -1;
@@ -16,8 +19,10 @@ inline void DSP(float& Lch, float& Rch) {
     // Rch = 8;
 
     // int output = static_cast<int>(vol * range_max);
-    Lch = vol;
-    Rch = vol;
+    // Lch = vol;
+    // Rch = vol;
+    Lch *= vol;
+    Rch *= vol;
 }
 
 

@@ -6,7 +6,7 @@ void I2S::audioReadTask(void* param) {
     
     
     // constexpr std::size_t count = tmpbuf.size() / 2;
-    printf("AD fifo adr: %p\n", reader->buffer); 
+    // printf("AD fifo adr: %p\n", reader->buffer); 
 
     Types::audiobuf_t tmpbuf;
     // tmpbuf.fill(0);
@@ -34,15 +34,15 @@ void I2S::audioReadTask(void* param) {
 
                 // std::cout << std::endl;
 
-                // for(std::size_t i = 0; i < count; i++) {
-                // // float lch = static_cast<float>(tmpbuf[2 * i] >> 8) * Config::Bit_Range_Reciprocal;
-                // // float rch = static_cast<float>(tmpbuf[2 * i + 1] >> 8) * Config::Bit_Range_Reciprocal;
-                //     static float lch, rch;    
-                //     DSP(lch, rch);
+                for(std::size_t i = 0; i < 512; i++) {
+                    float lch = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
+                    float rch = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                    
+                    DSP(lch, rch);
 
-                //     tmpbuf[2*i] = static_cast<int>(lch * Config::Bit_Range) << 8;
-                //     tmpbuf[2*i + 1] = static_cast<int>(rch * Config::Bit_Range) << 8;
-                // }
+                    tmpbuf[2*i] = static_cast<int>(lch * Config::Bit_Range);
+                    tmpbuf[2*i + 1] = static_cast<int>(rch * Config::Bit_Range);
+                }
                 
                 
                 reader->buffer->push(tmpbuf);                               
@@ -53,7 +53,7 @@ void I2S::audioReadTask(void* param) {
 
 void I2S::Reader::begin() {
     const i2s_config_t i2s_config {
-        .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX),                                   // Only TX
+        .mode = static_cast<i2s_mode_t>(I2S_MODE_SLAVE | I2S_MODE_RX),                                   // Only TX
         .sample_rate = Config::Sampling_Rate,
         .bits_per_sample = Config::Bit_Rate,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
@@ -63,8 +63,7 @@ void I2S::Reader::begin() {
         .dma_buf_len = Config::ADC::DMA::Buffer_Length, //64,
         .use_apll = false,
         .tx_desc_auto_clear = false,
-        // .fixed_mclk = Config::Sampling_Rate * 256,
-        .fixed_mclk = 0,
+        .fixed_mclk = Config::Sampling_Rate * 256,
     };
 
     const i2s_pin_config_t pin_config = {
@@ -80,6 +79,6 @@ void I2S::Reader::begin() {
     // i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
     i2s_zero_dma_buffer(Config::ADC::I2S_NUM);
     
-    TaskHandle_t tmpReadTaskHandle; // Could be NULL?    
-    xTaskCreate(audioReadTask, "I2S Reader Task", 8192, this, 1, &tmpReadTaskHandle);
+    // readTaskHandle; // Could be NULL?    
+    xTaskCreate(audioReadTask, "I2S Reader Task", 8192, this, 1, &readerTaskHandle);
 }

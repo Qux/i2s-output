@@ -7,8 +7,8 @@ void I2S::audioWriteTask(void* param) {
     
     // const std::size_t count = tmpbuf.size() / 2;    
     
-    Types::fifobuffer_t* fifo = writer->getAudioBufferPtr();
-    printf("DA fifo adr: %p\n", fifo);
+    // Types::fifobuffer_t* fifo = writer->getAudioBufferPtr();
+    // printf("DA fifo adr: %p\n", fifo);
 
     while(true) {
         // std::cout << "Writetask loop has begun" << std::endl;
@@ -60,6 +60,6 @@ void I2S::Writer::begin()  {
     // Run Task    
     std::cout << "Begining Audio Writer Task..." << std::endl;
 
-    TaskHandle_t tmpWriteTaskHandle; // Could be NULL?
-    xTaskCreate(I2S::audioWriteTask, "I2S Writer Task", 8192, this, 1, &tmpWriteTaskHandle);
+    
+    xTaskCreate(I2S::audioWriteTask, "I2S Writer Task", 8192, this, 1, &writerTaskHandle);
 }
