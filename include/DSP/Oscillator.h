@@ -49,16 +49,16 @@ public:
             case Sin:
                 phase += phase_inc; 
 
-                if (TWO_PI <= phase) {
-                    phase = 0.0;
+                while (TWO_PI <= phase) {
+                    phase -= TWO_PI;
                 }
                 return sin(phase);
                 break;
             case Cos:
                 phase += phase_inc; 
 
-                if (TWO_PI <= phase) {
-                    phase = 0.0;
+                while (TWO_PI <= phase) {
+                    phase -= TWO_PI;
                 }
                 return cos(phase);
                 break;
@@ -66,8 +66,8 @@ public:
                 
 
                 phase += phase_inc;
-                if (TWO_PI <= phase) {
-                    phase = 0.0;
+                while (TWO_PI <= phase) {
+                    phase -= TWO_PI;
                 }
                 t = -1.0 + 2.0 * (0.5 * phase / ((1-duty) * TWO_PI) );
                 if (t > 0) {
@@ -82,7 +82,7 @@ public:
                 return 0;
                 break;
             case DC:
-                return -0.256;
+                return -0.09;
             default:
                 return 0.0;
                 break;

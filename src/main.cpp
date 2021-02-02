@@ -329,8 +329,8 @@ extern "C" void app_main(void) {
     setup_clock();
     setup_i2s();
     
-    osc.setWaveform(osc.Triangle);
-    osc.setFreq(1600);
+    osc.setWaveform(osc.Sin);
+    osc.setFreq(2000);
 
     fifobuffer_t* buf = new fifobuffer_t;
     
