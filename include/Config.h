@@ -14,7 +14,7 @@ namespace Config {
     constexpr std::size_t Bit_Range = std::pow(2, static_cast<int>(Bit_Rate) - 1) - 1; // 8388607
     
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
-    
+    constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
     namespace ADC {

@@ -7,13 +7,13 @@
 
 inline void DSP(float& Lch, float& Rch) {
     static Oscillator* osc = new Oscillator(1, Oscillator::Waveform::Sin);         
-    osc->setFreq(1);
+    osc->setFreq(440);
 
-    // const float vol = osc->getNext();
-    const float vol = 1.0;
+    const float vol = osc->getNext();
+    // const float vol = 1.0;
 
-    Lch *= vol;
-    Rch *= vol;
+    Lch = vol;
+    Rch = vol;
 }
 
 

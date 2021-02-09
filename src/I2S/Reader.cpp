@@ -45,7 +45,7 @@ void I2S::Reader::begin() {
         .dma_buf_len = Config::ADC::DMA::Buffer_Length, //64,
         .use_apll = false,
         .tx_desc_auto_clear = false,
-        .fixed_mclk = Config::Sampling_Rate * 256,
+        .fixed_mclk = Config::MCLK_Freq,
     };
 
     const i2s_pin_config_t pin_config = {
