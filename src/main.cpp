@@ -162,7 +162,7 @@ void setup_i2s() {
 /* Generate dummy master clock from pin 18 */
 void setup_clock() {
     const ledc_channel_t channel = LEDC_CHANNEL_0;
-    constexpr std::size_t freq = Config::Sampling_Rate * 256;
+    constexpr std::size_t freq = Config::Sampling_Rate * 128;
     constexpr std::array<int, 2> gpio_pins = {32, 33}; 
 
     ledc_timer_config_t ledc_timer {

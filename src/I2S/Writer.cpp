@@ -32,7 +32,7 @@ void I2S::Writer::begin()  {
         .use_apll = true,
         .tx_desc_auto_clear = false,
         // .fixed_mclk = Config::Sampling_Rate * 256,
-        .fixed_mclk = 0,
+        .fixed_mclk = Config::MCLK_Freq,
     };
     i2s_pin_config_t pin_config = {
         .bck_io_num = Config::DAC::Pins::BCK,

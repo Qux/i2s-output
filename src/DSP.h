@@ -12,8 +12,8 @@ inline void DSP(float& Lch, float& Rch) {
     const float vol = osc->getNext();
     // const float vol = 1.0;
 
-    Lch = vol;
-    Rch = vol;
+    Lch *= vol;
+    Rch *= vol;
 }
 
 
