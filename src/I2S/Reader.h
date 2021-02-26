@@ -14,7 +14,9 @@
 /* Self-defined stuff */
 #include "Config.h"
 #include "Types.h"
-#include "DSP.h"
+
+// #include "DSP.h"
+extern void DSP(float& Lch, float& Rch);
 
 namespace I2S {
     class Reader {

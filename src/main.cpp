@@ -200,7 +200,7 @@ void updateControl() {
 extern "C" void app_main(void) {
     unit_test();
 
-    setup_clock();
+    // setup_clock();
 
     using namespace Types;
     fifobuffer_t* buf = new fifobuffer_t;
