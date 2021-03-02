@@ -3,20 +3,23 @@
 
 #pragma once
 
+#include <Arduino.h>
+
+
 /* FREERTOS */ 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "driver/i2s.h"
 #include "esp_system.h"
-#include "esp32/spiram.h"
+// #include "esp32/spiram.h"
 
 /* Self-defined stuff */
 #include "Config.h"
 #include "Types.h"
 
 // #include "DSP.h"
-extern void DSP(float& Lch, float& Rch);
+extern void DSP(const float, const float, float&, float&);
 
 namespace I2S {
     class Reader {

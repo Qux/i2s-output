@@ -6,7 +6,8 @@
         "*.ipp": "cpp",
         "ostream": "cpp",
         "chrono": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "esp32-hal-ledc.c": "cpp"
     },
     "cmake.configureOnOpen": true
 }

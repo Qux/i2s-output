@@ -3,12 +3,15 @@
 #ifndef DELAYLINE_H
 #define DELAYLINE_H
 
+#include <Arduino.h>
+
 #include <cstddef>
 #include <array>
 
 template<typename T, std::size_t N>class DelayLine    {
 private:
-    std::array<T, N> buffer; 
+    // std::array<T, N> buffer; 
+    T* buffer;
     std::size_t z0_index = N - 1;
 
     std::size_t get_index_on_buffer(std::size_t z_index) const  {
@@ -21,16 +24,18 @@ private:
 
 public:
     DelayLine(/* args */){
-        for(auto& elm : buffer) {
-            elm = T();
-        }
+        // for(auto& elm : buffer) {
+        //     elm = T();
+        // }
+        psramInit();
+        buffer = static_cast<T*>(ps_calloc(N, sizeof(T)));
     };
 
-    DelayLine(const T& _default) {
-        for(auto& elm : buffer) {
-            elm = T(_default);
-        }
-    }
+    // DelayLine(const T& _default) {
+    //     for(auto& elm : buffer) {
+    //         elm = T(_default);
+    //     }
+    // }
 
     ~DelayLine(){};
 
@@ -44,7 +49,8 @@ public:
     }
     
     const T& get(std::size_t z_index) const {
-        return buffer.at(get_index_on_buffer(z_index));
+        // return buffer.at(get_index_on_buffer(z_index));
+        return buffer[get_index_on_buffer(z_index)];
     }
 
     // Just get

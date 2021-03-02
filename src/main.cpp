@@ -3,6 +3,7 @@
 
 */
 
+#include <Arduino.h>
 
 /** C++ **/
 #include <array>
@@ -23,8 +24,10 @@
 #include "driver/i2s.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
+#include "esp32-hal-ledc.c"
 #include "esp_system.h"
-#include "esp32/spiram.h"
+// #include "esp32/spiram.h"
+// #include "esp32-hal-psram.h"
 
 /* Original */
 #include "Config.h"
@@ -39,8 +42,6 @@
 #include "Util/Static_FIFO.h"
 
 
-
-void setup_i2s();
 
 void unit_test() {
     std::cout << "Bit Range:" << Config::Bit_Range << ", INT32_Max: "<< INT32_MAX << std::endl;
@@ -146,20 +147,10 @@ void vAudioReadThread(void* param) {
 }
 
 */
-void setup_adc() {}
 
-
-void setup_dac() {}
-
-
-void setup_i2s() {
-    std::cout << "Initializing ADC..." << std::endl;
-    setup_adc();
-    std::cout << "Initializing DAC..." << std::endl;
-    setup_dac();
-}
 
 /* Generate dummy master clock from pin 18 */
+/*
 void setup_clock() {
     const ledc_channel_t channel = LEDC_CHANNEL_0;
     constexpr std::size_t freq = Config::Sampling_Rate * 128;
@@ -170,7 +161,7 @@ void setup_clock() {
         .duty_resolution = LEDC_TIMER_1_BIT,
         .timer_num = LEDC_TIMER_0,
         .freq_hz = freq,
-        .clk_cfg = LEDC_AUTO_CLK,
+        // .clk_cfg = 0,
     };
 
     ledc_timer_config(&ledc_timer);
@@ -190,13 +181,50 @@ void setup_clock() {
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);  
     }
 }
+*/
 
 void updateControl() {
 
 }
 
 
+void setup() {    
+    std::cout << "PSRAM Found: " << psramFound() << std::endl;
+    
+    unit_test();
 
+    // setup_clock();
+
+    using namespace Types;
+    fifobuffer_t* buf = new fifobuffer_t;
+
+    std::cout << "Reader init" << std::endl;
+    I2S::Reader reader;
+    reader.setBufferPtr(buf);
+
+    std::cout << "Reader begin" << std::endl;
+    reader.begin();
+    
+    std::cout << "Writer init" << std::endl;    
+    // I2S::Writer writer(*buf);
+    I2S::Writer writer;
+
+    std::cout << "Writer begin" << std::endl;
+    writer.setAudioBufferPtr(buf);
+    writer.begin();
+    
+    constexpr TickType_t interval = 2 / portTICK_PERIOD_MS;
+    while (true) {                
+        updateControl();
+        vTaskDelay(interval);
+    }
+}
+
+void loop() {
+
+}
+
+/*
 extern "C" void app_main(void) {
     unit_test();
 
@@ -226,3 +254,4 @@ extern "C" void app_main(void) {
         vTaskDelay(interval);
     }
 }
+*/

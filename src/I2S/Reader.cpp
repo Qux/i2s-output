@@ -16,14 +16,17 @@ void I2S::audioReadTask(void* param) {
                 // read from i2s                
                 i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);                       
 
-                for(std::size_t i = 0; i < 512; i++) {
-                    float lch = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
-                    float rch = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                constexpr std::size_t loop_count = tmpbuf.size() / 2;
+                for(std::size_t i = 0; i < loop_count; i++) {
+                    float inl = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
+                    float inr = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
                     
-                    DSP(lch, rch);
+                    float outl, outr;
 
-                    tmpbuf[2*i] = static_cast<int>(lch * Config::Bit_Range);
-                    tmpbuf[2*i + 1] = static_cast<int>(rch * Config::Bit_Range);
+                    DSP(inl, inr, outl, outr);
+
+                    tmpbuf[2*i] = static_cast<int>(outl * Config::Bit_Range);
+                    tmpbuf[2*i + 1] = static_cast<int>(outr * Config::Bit_Range);
                 }
                 
                 

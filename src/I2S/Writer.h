@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 /* C++ */
 #include <array>
 
@@ -12,7 +14,7 @@
 #include "freertos/queue.h"
 #include "driver/i2s.h"
 #include "esp_system.h"
-#include "esp32/spiram.h"
+// #include "esp32/spiram.h"
 
 /* User Generated */
 #include "Config.h"
