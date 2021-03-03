@@ -4,6 +4,7 @@
 Oscillator::Oscillator(Waveform _waveform) {
         phase = 0.0;
         freq = 0;
+        DC_value = 0;
         waveform = _waveform;
     }
 
@@ -20,6 +21,10 @@ void Oscillator::setFreq(const float _freq) {
     freq = _freq;
     freq_reciprocal = 1.0 / freq;
     phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
+}
+
+void Oscillator::setDC(const float _dc) {
+    DC_value = _dc;
 }
 
 float Oscillator::getNext() { 
@@ -67,7 +72,7 @@ float Oscillator::getNext() {
             return 0;
             break;
         case DC:
-            return -0.09;
+            return DC_value;
         default:
             return 0.0;
             break;

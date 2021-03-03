@@ -23,6 +23,8 @@ public:
 
     void setWaveform(const Waveform _waveform);
     void setFreq(const float _freq);
+    void setDC(const float);
+
     float getNext();
     void reset();
 
@@ -31,6 +33,7 @@ private:
     float freq_reciprocal;  // reciprocal of the freqency to redule division.
     float phase_inc;  // increment value of phase per sample (everytime getNext() called).
     float phase;    // 0.0 ~ 2pi.
+    float DC_value;
     Waveform waveform;
 
     // If Arduino.h is included this will not be called.

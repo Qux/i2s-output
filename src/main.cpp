@@ -123,69 +123,8 @@ void unit_test() {
     std::cout << "finished Unit test " << std::endl;
 }
 
-/*
-void vAudioReadThread(void* param) {
-    using namespace Types;
-    fifobuffer_t* buf = (fifobuffer_t*)param;
-    static audiobuf_t tmpbuf;
-    static std::size_t i2s_bytes_read = 0;
-    
-    while(true) {
-        if(buf->has_space()) {
-            i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY); 
 
-            constexpr std::size_t count = tmpbuf.size() / 2;
-            for(std::size_t i = 0; i < count; i++) {
-                // DSP(tmpbuf[2 * i], tmpbuf[2 * i + 1]);
-            }
-
-            buf->push(tmpbuf);
-
-        }   
-        vTaskDelay(1);   
-    }
-}
-
-*/
-
-
-/* Generate dummy master clock from pin 18 */
-/*
-void setup_clock() {
-    const ledc_channel_t channel = LEDC_CHANNEL_0;
-    constexpr std::size_t freq = Config::Sampling_Rate * 128;
-    constexpr std::array<int, 2> gpio_pins = {32, 33}; 
-
-    ledc_timer_config_t ledc_timer {
-        .speed_mode = LEDC_HIGH_SPEED_MODE,
-        .duty_resolution = LEDC_TIMER_1_BIT,
-        .timer_num = LEDC_TIMER_0,
-        .freq_hz = freq,
-        // .clk_cfg = 0,
-    };
-
-    ledc_timer_config(&ledc_timer);
-
-    for(const auto gpio_pin : gpio_pins) {
-        ledc_channel_config_t ledc_channel = {
-            .gpio_num = gpio_pin,
-            .speed_mode = LEDC_HIGH_SPEED_MODE,
-            .channel = channel,
-            .intr_type = LEDC_INTR_DISABLE,
-            .timer_sel = LEDC_TIMER_0,        
-            .duty = 1,
-            .hpoint = 0,
-        };
-        ledc_channel_config(&ledc_channel);    
-        ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 1);
-        ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);  
-    }
-}
-*/
-
-void updateControl() {
-
-}
+void updateControl() {}
 
 
 void setup() {    
@@ -223,35 +162,3 @@ void setup() {
 void loop() {
 
 }
-
-/*
-extern "C" void app_main(void) {
-    unit_test();
-
-    // setup_clock();
-
-    using namespace Types;
-    fifobuffer_t* buf = new fifobuffer_t;
-
-    std::cout << "Reader init" << std::endl;
-    I2S::Reader reader;
-    reader.setBufferPtr(buf);
-
-    std::cout << "Reader begin" << std::endl;
-    reader.begin();
-    
-    std::cout << "Writer init" << std::endl;    
-    // I2S::Writer writer(*buf);
-    I2S::Writer writer;
-
-    std::cout << "Writer begin" << std::endl;
-    writer.setAudioBufferPtr(buf);
-    writer.begin();
-    
-    constexpr TickType_t interval = 2 / portTICK_PERIOD_MS;
-    while (true) {                
-        updateControl();
-        vTaskDelay(interval);
-    }
-}
-*/
