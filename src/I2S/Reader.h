@@ -5,7 +5,6 @@
 
 #include <Arduino.h>
 
-
 /* FREERTOS */ 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -14,32 +13,26 @@
 #include "esp_system.h"
 // #include "esp32/spiram.h"
 
-/* Self-defined stuff */
+
 #include "Config.h"
 #include "Types.h"
+#include "DeepListening.hpp"
 
-// #include "DSP.h"
-extern void DSP(const float, const float, float&, float&);
 
 namespace I2S {
     class Reader {
-
         public:
-            // Reader(Types::fifobuffer_t& _buf) : buffer(_buf){};
+            Reader(DeepListening* _app);
             void begin();
-            inline QueueHandle_t getQueue() const {
-                return queue;
-            }
             void setBufferPtr(Types::fifobuffer_t* _buf) {
                 buffer = _buf;
             }
 
             friend void audioReadTask(void *param);
         private:
-            TaskHandle_t readerTaskHandle;  // I2S reader task
-            TaskHandle_t writerTaskHandle;  // writer task        
+            DeepListening* app;
+            TaskHandle_t taskHandle;  // I2S reader task
             QueueHandle_t queue; // i2s reader queue
-            // Types::fifobuffer_t& buffer;
             Types::fifobuffer_t* buffer;
     };
 

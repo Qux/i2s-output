@@ -24,9 +24,6 @@ private:
 
 public:
     DelayLine(/* args */){
-        // for(auto& elm : buffer) {
-        //     elm = T();
-        // }
         psramInit();
         buffer = static_cast<T*>(ps_calloc(N, sizeof(T)));
     };
@@ -37,7 +34,9 @@ public:
     //     }
     // }
 
-    ~DelayLine(){};
+    ~DelayLine(){
+        free(buffer);
+    };
 
     void add(const T value)  {
         z0_index++;

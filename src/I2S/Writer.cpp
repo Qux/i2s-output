@@ -1,6 +1,7 @@
 #include "Writer.h"
 
 void I2S::audioWriteTask(void* param) {
+    std::cout << "audio write task started." << std::endl;
     I2S::Writer* writer = static_cast<I2S::Writer*>(param);
 
     while(true) {
@@ -10,14 +11,30 @@ void I2S::audioWriteTask(void* param) {
 
                 std::size_t i2s_bytes_write = 0; // Could be nullptr
 
-                i2s_write(Config::DAC::I2S_NUM, writer->buf->pop().data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                if(Config::Stream == Stream_State::Output_Only) {
+                    static Types::audiobuf_t tmpbuf;
+                    static float outl, outr;
+                    constexpr std::size_t loop_count = tmpbuf.size() / 2;
 
+                    for(std::size_t i = 0; i < loop_count; i++) {
+                        writer->app->dsp(0.0, 0.0, outl, outr);
+
+                        tmpbuf[2*i] = static_cast<int>(outl * Config::Bit_Range);
+                        tmpbuf[2*i + 1] = static_cast<int>(outr * Config::Bit_Range);  
+                    }
+                    i2s_write(Config::DAC::I2S_NUM, tmpbuf.data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                } else {                    
+                    i2s_write(Config::DAC::I2S_NUM, writer->buf->pop().data(), Config::DAC::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                }                
             }
         }
     }
 }
 
 
+I2S::Writer::Writer(DeepListening* _app) : app{_app} {
+
+}
 
 void I2S::Writer::begin()  {
     i2s_config_t i2s_config = {

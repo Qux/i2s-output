@@ -1,8 +1,8 @@
 #pragma once
 
-#ifndef Arduino_h
+
 #include <Arduino.h>
-#endif
+
 
 #include <cmath>
 #include "Config.h"
@@ -10,12 +10,7 @@
 class Oscillator {
 public: 
     enum Waveform {
-        Sin,
-        Cos,
-        Triangle,
-        Square,
-        Sawtooth,
-        DC,
+        Sin, Cos, Triangle, Square, Sawtooth, DC,
     };
 
     Oscillator(Waveform _waveform = Sin);

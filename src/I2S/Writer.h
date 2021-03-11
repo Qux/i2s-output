@@ -16,31 +16,30 @@
 #include "esp_system.h"
 // #include "esp32/spiram.h"
 
-/* User Generated */
+
 #include "Config.h"
 #include "Types.h"
+#include "DeepListening.hpp"
 #include "Util/Static_FIFO.h"
 #include "Util/Math_Utils.h"
 // #include "DSP.h"
 
+
 namespace I2S {
     class Writer {
         public:
-            // Writer(Types::fifobuffer_t& _buf) : buffer(_buf){};
+            Writer(DeepListening* _app);
             void begin();
-            friend void audioWriteTask(void* param);
+
             inline void setAudioBufferPtr(Types::fifobuffer_t* _buf) {
                 buf = _buf;
             };
 
-            inline Types::fifobuffer_t* getAudioBufferPtr() const {
-                return buf;
-            }
+            friend void audioWriteTask(void* param);
+            void updateBuffer();
 
-            inline QueueHandle_t getQueue() const {
-                return queue;
-            }
-        private:
+        private:            
+            DeepListening* app;
             TaskHandle_t writerTaskHandle;
             QueueHandle_t queue;
             Types::fifobuffer_t* buf;      
