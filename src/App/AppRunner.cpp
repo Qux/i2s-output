@@ -47,7 +47,8 @@ void AppRunner::run() {
 
     while (true) {                
         app->control();
-        vTaskDelay(Config::Control_Interval);
+        // vTaskDelay(Config::Control_Interval);
+        vPortYield();
     }
 }
 

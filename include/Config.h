@@ -11,6 +11,7 @@
 #include <cstddef>
 #include "driver/i2s.h"
 
+// This enum should move to somewhere else. maybe inside Config?
 enum Stream_State {
     Use_InOut,
     Input_Only,
@@ -28,7 +29,7 @@ namespace Config {
     constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
-    constexpr Stream_State Stream = Stream_State::Output_Only;  // Use_InOut, 
+    constexpr Stream_State Stream = Output_Only;  // Use_InOut, Output_Only, Input_Only, No_Audio
     constexpr std::size_t Control_Interval_ms = 2;
     constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
 

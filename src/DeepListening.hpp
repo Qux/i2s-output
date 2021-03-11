@@ -3,17 +3,16 @@
 #include <Arduino.h>
 #include "DSP/Oscillator.h"
 
+
 class DeepListening {
-public:
-    DeepListening(){};
-    ~DeepListening(){};
-    void setup();
-    void dsp(float&, float&);
+public:    
+    void setup();    
     void dsp(const float, const float, float&, float&);
-    void control();
+    void control();    
 
 private:
-    int counter;
+    std::size_t previousTime;
     Oscillator osc;
+
 };
 
