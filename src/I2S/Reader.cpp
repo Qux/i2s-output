@@ -4,6 +4,7 @@ void I2S::audioReadTask(void* param) {
     std::cout << "audio read task started." << std::endl;
     I2S::Reader* reader = static_cast<I2S::Reader*>(param);
     
+    float outl, outr;
     Types::audiobuf_t tmpbuf;
 
     while(true) {
@@ -20,9 +21,7 @@ void I2S::audioReadTask(void* param) {
                 for(std::size_t i = 0; i < loop_count; i++) {                    
                     const float inr = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
                     const float inl = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
-                    
-                    static float outl, outr;
-                    
+                                        
                     reader->app->dsp(inl, inr, outl, outr);
 
                     tmpbuf[2*i] = static_cast<int>(outr * Config::Bit_Range);
