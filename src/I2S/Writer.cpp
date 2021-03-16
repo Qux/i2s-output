@@ -32,9 +32,7 @@ void I2S::audioWriteTask(void* param) {
 }
 
 
-I2S::Writer::Writer(DeepListening* _app) : app{_app} {
-
-}
+I2S::Writer::Writer(ListeningApp* _app) : app{_app} {}
 
 void I2S::Writer::begin()  {
     i2s_config_t i2s_config = {

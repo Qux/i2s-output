@@ -16,13 +16,13 @@
 
 #include "Config.h"
 #include "Types.h"
-#include "DeepListening.hpp"
+#include "App/ListeningApp.hpp"
 
 
 namespace I2S {
     class Reader {
         public:
-            Reader(DeepListening* _app);
+            Reader(ListeningApp* _app);
             void begin();
             void setBufferPtr(Types::fifobuffer_t* _buf) {
                 buffer = _buf;
@@ -30,7 +30,7 @@ namespace I2S {
 
             friend void audioReadTask(void *param);
         private:
-            DeepListening* app;
+            ListeningApp* app;
             TaskHandle_t taskHandle;  // I2S reader task
             QueueHandle_t queue; // i2s reader queue
             Types::fifobuffer_t* buffer;

@@ -15,7 +15,9 @@ namespace UnitTest  {
         return counter++;
     };
 
-    template<typename Ta, typename Tb> bool assert_equal(Ta obj1, Tb obj2, bool reset_index = false) {        
+
+    template<typename Ta, typename Tb> 
+    bool assert_equal(Ta obj1, Tb obj2, bool reset_index = false) {        
         if(obj1 == obj2) {
             printf("Test %d succeeded.\n", index(reset_index));
             return true;

@@ -6,6 +6,7 @@
 #include "DSP/DelayLine.h"
 #include "Util/Static_FIFO.h"
 #include "Util/RangedCounter.h"
+#include "App/ListeningApp.hpp"
 
 void UnitTest::run() {
     std::cout << "Bit Range:" << Config::Bit_Range << ", INT32_Max: "<< INT32_MAX << std::endl;
@@ -25,7 +26,7 @@ void UnitTest::run() {
 
     using namespace UnitTest;
     
-    DelayLine<int, 10> idelay;    
+    DelayLine<int> idelay(10);    
     assert_equal(idelay.get(0), 0);
     idelay.add(1);    
     assert_equal(idelay.get(0), 1);
@@ -35,7 +36,7 @@ void UnitTest::run() {
 
     std::cout << "Float Delay test beginning..." << std::endl;
 
-    DelayLine<float, 10> fdelay;    
+    Delay fdelay(10);    
     assert_equal(fdelay.get(0), 0.0, true);
     fdelay.add(1.0);
     assert_equal(fdelay.get(0), 1.0);
@@ -83,6 +84,13 @@ void UnitTest::run() {
     assert_equal(++counter, 1);
     counter = 50;
     assert_equal(counter, 50);
+
+    std::cout << "mstosamps test..." << std::endl;
+    assert_equal(ListeningApp::mstosamps(1000), Config::Sampling_Rate, true);
+    std::cout << "sampstoms test..." << std::endl;
+    assert_equal(ListeningApp::sampstoms(48000), 1000.0);
+
+    
 
     std::cout << "finished Unit test " << std::endl;
 }

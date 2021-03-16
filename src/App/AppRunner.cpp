@@ -2,7 +2,7 @@
 
 using namespace Types;
 
-AppRunner::AppRunner(DeepListening* _app) : app{_app} {
+AppRunner::AppRunner(ListeningApp* _app) : app{_app} {
     this->buf = new fifobuffer_t;
 }
 
@@ -24,7 +24,7 @@ void AppRunner::initWriter() {
 void AppRunner::init() {
     app->setup();
     switch (Config::Stream) {
-        case Use_InOut:
+        case InOut:
             initReader();
             initWriter();
             break;

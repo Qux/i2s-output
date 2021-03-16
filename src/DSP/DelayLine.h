@@ -8,31 +8,29 @@
 #include <cstddef>
 #include <array>
 
-template<typename T, std::size_t N>class DelayLine    {
+#include "esp_himem.h"
+
+template<typename T = float>class DelayLine    {
 private:
     // std::array<T, N> buffer; 
     T* buffer;
-    std::size_t z0_index = N - 1;
+    const std::size_t Buffer_Size;
+    std::size_t z0_index;    
 
-    std::size_t get_index_on_buffer(std::size_t z_index) const  {
+    std::size_t get_index_on_buffer(std::size_t z_index) const {
         if(z0_index < z_index) {
-            return N - (z_index - z0_index);
+            return Buffer_Size - (z_index - z0_index);
         } else {
             return z0_index - z_index;
         }
     }
 
 public:
-    DelayLine(/* args */){
+    DelayLine(std::size_t max_samples) : Buffer_Size{max_samples} {
         psramInit();
-        buffer = static_cast<T*>(ps_calloc(N, sizeof(T)));
+        buffer = static_cast<T*>(ps_calloc(Buffer_Size, sizeof(T)));
+        z0_index = Buffer_Size - 1;
     };
-
-    // DelayLine(const T& _default) {
-    //     for(auto& elm : buffer) {
-    //         elm = T(_default);
-    //     }
-    // }
 
     ~DelayLine(){
         free(buffer);
@@ -40,7 +38,7 @@ public:
 
     void add(const T value)  {
         z0_index++;
-        if(N <= z0_index) {
+        if(Buffer_Size <= z0_index) {
             z0_index = 0;
         }
 
@@ -58,9 +56,10 @@ public:
     }        
 
     constexpr std::size_t size() const {
-        return N;
+        return Buffer_Size;
     }
 };
 
+typedef DelayLine<float> Delay;
 
 #endif // !DELAYLINE_H

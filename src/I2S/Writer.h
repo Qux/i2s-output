@@ -19,7 +19,7 @@
 
 #include "Config.h"
 #include "Types.h"
-#include "DeepListening.hpp"
+#include "App/ListeningApp.hpp"
 #include "Util/Static_FIFO.h"
 #include "Util/Math_Utils.h"
 // #include "DSP.h"
@@ -28,7 +28,7 @@
 namespace I2S {
     class Writer {
         public:
-            Writer(DeepListening* _app);
+            Writer(ListeningApp* _app);
             void begin();
 
             inline void setAudioBufferPtr(Types::fifobuffer_t* _buf) {
@@ -39,7 +39,7 @@ namespace I2S {
             void updateBuffer();
 
         private:            
-            DeepListening* app;
+            ListeningApp* app;
             TaskHandle_t writerTaskHandle;
             QueueHandle_t queue;
             Types::fifobuffer_t* buf;      

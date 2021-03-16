@@ -10,13 +10,14 @@
 #include "Types.h"
 #include "I2S/Writer.h"
 #include "I2S/Reader.h"
+#include "App/ListeningApp.hpp"
 #include "DeepListening.hpp"
 
 
 class AppRunner {
 public:
 
-    AppRunner(DeepListening* _app);
+    AppRunner(ListeningApp* _app);
         
     void initReader();
     void initWriter();
@@ -26,7 +27,7 @@ public:
 
 
 private:    
-    DeepListening* app;
+    ListeningApp* app;
     Types::fifobuffer_t* buf;
     I2S::Reader* reader;
     I2S::Writer* writer;

@@ -18,15 +18,15 @@ void I2S::audioReadTask(void* param) {
 
                 constexpr std::size_t loop_count = tmpbuf.size() / 2;
                 for(std::size_t i = 0; i < loop_count; i++) {                    
-                    const float inl = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
-                    const float inr = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                    const float inr = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
+                    const float inl = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
                     
                     static float outl, outr;
                     
                     reader->app->dsp(inl, inr, outl, outr);
 
-                    tmpbuf[2*i] = static_cast<int>(outl * Config::Bit_Range);
-                    tmpbuf[2*i + 1] = static_cast<int>(outr * Config::Bit_Range);
+                    tmpbuf[2*i] = static_cast<int>(outr * Config::Bit_Range);
+                    tmpbuf[2*i + 1] = static_cast<int>(outl * Config::Bit_Range);
                 }                
                 
                 reader->buffer->push(tmpbuf);                               
@@ -36,7 +36,7 @@ void I2S::audioReadTask(void* param) {
 }
 
 
-I2S::Reader::Reader(DeepListening* _app) : app{_app} {}
+I2S::Reader::Reader(ListeningApp* _app) : app{_app} {}
 
 void I2S::Reader::begin() {
     const i2s_config_t i2s_config {

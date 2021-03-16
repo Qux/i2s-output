@@ -8,8 +8,14 @@ void DeepListening::setup() {
 
 void DeepListening::dsp(const float inL, const float inR, float& outL, float& outR) {
     const float val = osc.getNext();
-    outR = val;
-    outL = val;    
+    // outR = val;
+    // outL = val;   
+
+    outL = inL + val * 0.5;
+    outR = del.get(24000); 
+
+    del.add(inL);
+
 }
 
 void DeepListening::control() {
