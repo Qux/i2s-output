@@ -33,15 +33,16 @@ namespace Config {
     constexpr std::size_t Control_Interval_ms = 2;
     constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
 
+    namespace DMA {
+        constexpr std::size_t Buffer_Count = 4;
+        constexpr std::size_t Buffer_Size = 512;
+        constexpr std::size_t Buffer_Length = Channels * Buffer_Size;
+        constexpr std::size_t Size_byte = sizeof(int);
+        constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
+    }
+
     namespace ADC {
         const i2s_port_t I2S_NUM = I2S_NUM_0;
-
-        namespace DMA {
-            constexpr std::size_t Buffer_Count = 4;
-            constexpr std::size_t Buffer_Length = Channels * 512;
-            constexpr std::size_t Size_byte = sizeof(int);
-            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
-        }
 
         namespace Pins {
             const int BCK = GPIO_NUM_13;
@@ -53,13 +54,6 @@ namespace Config {
 
     namespace DAC {
         const i2s_port_t I2S_NUM = I2S_NUM_1;
-
-        namespace DMA {
-            constexpr std::size_t Buffer_Count = 4;
-            constexpr std::size_t Buffer_Length = 512;
-            constexpr std::size_t Size_byte = sizeof(int); 
-            constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Channels * Size_byte;
-        }
 
         namespace Pins {
             const int BCK = GPIO_NUM_27;
