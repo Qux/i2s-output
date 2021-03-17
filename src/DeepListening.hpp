@@ -15,6 +15,7 @@ public:
 private:
     std::size_t previousTime;
     Oscillator osc;
+    Oscillator lfo;
 
     StereoDelay del = StereoDelay(mstosamps(1000));
     
