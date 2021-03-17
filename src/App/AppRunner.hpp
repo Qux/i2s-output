@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Arduino.h>
@@ -8,10 +7,12 @@
 
 #include "Config.h"
 #include "Types.h"
-#include "I2S/Writer.h"
-#include "I2S/Reader.h"
+
 #include "App/ListeningApp.hpp"
 #include "DeepListening.hpp"
+
+#include "I2S/Writer.h"
+#include "I2S/Reader.h"
 
 
 class AppRunner {

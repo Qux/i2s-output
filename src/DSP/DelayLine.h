@@ -10,6 +10,8 @@
 
 #include "esp_himem.h"
 
+#include "Base/StereoSample.hpp"
+
 template<typename T = float>class DelayLine    {
 private:
     // std::array<T, N> buffer; 
@@ -36,7 +38,7 @@ public:
         free(buffer);
     };
 
-    void add(const T value)  {
+    inline void add(const T value)  {
         z0_index++;
         if(Buffer_Size <= z0_index) {
             z0_index = 0;
@@ -45,21 +47,19 @@ public:
         this->buffer[z0_index] = value;                
     }
     
-    const T& get(std::size_t z_index) const {
+    inline const T& get(std::size_t z_index) const {
         // return buffer.at(get_index_on_buffer(z_index));
         return buffer[get_index_on_buffer(z_index)];
     }
 
     // Just get
-    const T& operator[](std::size_t z_index) const {                
+    inline const T& operator[](std::size_t z_index) const {                
         return this->get(z_index);
     }        
 
-    constexpr std::size_t size() const {
+    inline constexpr std::size_t size() const {
         return Buffer_Size;
     }
 };
-
-typedef DelayLine<float> Delay;
 
 #endif // !DELAYLINE_H

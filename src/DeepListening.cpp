@@ -6,17 +6,14 @@ void DeepListening::setup() {
 }
 
 
-void DeepListening::dsp(const float inL, const float inR, float& outL, float& outR) {
-    const float val = osc.getNext();
-    // outR = val;
-    // outL = val;   
+void DeepListening::dsp(const StereoSample& in, StereoSample& out) {
+    const float val = osc.getNext();    
 
-    outL = inL + val * 0.5;
-    outR = del.get(24000); 
+    out = val;
 
-    del.add(inL);
-
-}
+    out.L += del.get(24000).L;
+    del.add(in);
+};
 
 void DeepListening::control() {
     const std::size_t currentTime = millis();

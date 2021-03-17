@@ -4,28 +4,28 @@ void I2S::audioReadTask(void* param) {
     std::cout << "audio read task started." << std::endl;
     I2S::Reader* reader = static_cast<I2S::Reader*>(param);
     
-    float outl, outr;
-    Types::audiobuf_t tmpbuf;
-
     while(true) {
         // wait for some data to arrive on the queue
         i2s_event_t event;
-        if (xQueueReceive(reader->queue, &event, portMAX_DELAY) == pdPASS)  {            
+        if (xQueueReceive(reader->queue, &event, portMAX_DELAY) == pdPASS)  {        
+            
             if (event.type == I2S_EVENT_RX_DONE)  {                    
-                
+                static Types::audiobuf_t tmpbuf;                
                 std::size_t i2s_bytes_read = 0; // placeholder for counting incoming data bytes
-                // read from i2s                
-                i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);     
+                
+                i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);     // read from i2s                
+                
+                static StereoSample in, out;
 
                 constexpr std::size_t loop_count = tmpbuf.size() / 2;
                 for(std::size_t i = 0; i < loop_count; i++) {                    
-                    const float inr = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
-                    const float inl = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
-                                        
-                    reader->app->dsp(inl, inr, outl, outr);
+                    in.L = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
+                    in.R = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                    
+                    reader->app->dsp(in, out);
 
-                    tmpbuf[2*i] = static_cast<int>(outr * Config::Bit_Range);
-                    tmpbuf[2*i + 1] = static_cast<int>(outl * Config::Bit_Range);
+                    tmpbuf[2*i] = static_cast<int>(out.R * Config::Bit_Range);
+                    tmpbuf[2*i + 1] = static_cast<int>(out.L * Config::Bit_Range);
                 }                
                 
                 reader->buffer->push(tmpbuf);                               

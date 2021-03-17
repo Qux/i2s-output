@@ -8,6 +8,8 @@
 #include "Util/RangedCounter.h"
 #include "App/ListeningApp.hpp"
 
+#include "StereoSampleTest.hpp"
+
 void UnitTest::run() {
     std::cout << "Bit Range:" << Config::Bit_Range << ", INT32_Max: "<< INT32_MAX << std::endl;
     std::cout << "Int Size: " << sizeof(int) << std::endl;
@@ -36,7 +38,7 @@ void UnitTest::run() {
 
     std::cout << "Float Delay test beginning..." << std::endl;
 
-    Delay fdelay(10);    
+    DelayLine<float> fdelay(10);    
     assert_equal(fdelay.get(0), 0.0, true);
     fdelay.add(1.0);
     assert_equal(fdelay.get(0), 1.0);
@@ -90,7 +92,7 @@ void UnitTest::run() {
     std::cout << "sampstoms test..." << std::endl;
     assert_equal(ListeningApp::sampstoms(48000), 1000.0);
 
-    
+    StereoSampleTest::run();
 
     std::cout << "finished Unit test " << std::endl;
 }

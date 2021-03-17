@@ -14,7 +14,6 @@
 #include "freertos/queue.h"
 #include "driver/i2s.h"
 #include "esp_system.h"
-// #include "esp32/spiram.h"
 
 
 #include "Config.h"
@@ -22,8 +21,6 @@
 #include "App/ListeningApp.hpp"
 #include "Util/Static_FIFO.h"
 #include "Util/Math_Utils.h"
-// #include "DSP.h"
-
 
 namespace I2S {
     class Writer {

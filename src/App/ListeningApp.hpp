@@ -4,11 +4,13 @@
 #include <cstddef>
 
 #include "Config.h"
+#include "Types.h"
+#include "Base/StereoSample.hpp"
 
 class ListeningApp {
     public:
-        virtual void setup() = 0;
-        virtual void dsp(const float, const float, float&, float&) = 0;
+        virtual void setup() = 0;        
+        virtual void dsp(const StereoSample&, StereoSample&) = 0;
         virtual void control() = 0;
 
         static inline std::size_t mstosamps(float ms) {
