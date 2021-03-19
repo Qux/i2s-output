@@ -35,30 +35,19 @@ float Oscillator::getNext() {
     float t = 0.0;
     float duty = 0.5; // 0.0 < duty < 1.0
 
+    phase += phase_inc; 
+    while (TWO_PI <= phase) {
+        phase -= TWO_PI;
+    }
+
     switch (waveform) {
         case Sin:
-            phase += phase_inc; 
-
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             return sin(phase);
             break;
         case Cos:
-            phase += phase_inc; 
-
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             return cos(phase);
             break;
         case Triangle:
-            
-
-            phase += phase_inc;
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             t = -1.0 + 2.0 * (0.5 * phase / ((1-duty) * TWO_PI) );
             if (t > 0) {
                 t = -1.0/duty + 1.0 + 2.0 * (0.5 * phase / (duty * TWO_PI) );
@@ -66,6 +55,11 @@ float Oscillator::getNext() {
             return 2.0 * (fabsf(t) - 0.5);
             break;
         case Square:
+            if (phase < duty * TWO_PI) {
+                return 1.0;
+            } else {
+                return -1.0;
+            }
             return 0;
             break;
         case Sawtooth:
