@@ -4,6 +4,7 @@
 Oscillator::Oscillator(Waveform _waveform) {
         phase = 0.0;
         freq = 0;
+        duty = 0.0;
         DC_value = 0;
         waveform = _waveform;
     }
@@ -33,7 +34,6 @@ float Oscillator::getNext() {
     - returns -1.0 ~ 1.0
     */    
     float t = 0.0;
-    float duty = 0.5; // 0.0 < duty < 1.0
 
     phase += phase_inc; 
     while (TWO_PI <= phase) {
@@ -60,10 +60,13 @@ float Oscillator::getNext() {
             } else {
                 return -1.0;
             }
-            return 0;
             break;
         case Sawtooth:
-            return 0;
+            if (duty >= 0.5) {
+                return ((phase * 2.0 * TWO_PI_RECIPROCAL) - 1);
+            } else {
+                return (-1) * ((phase * 2.0 * TWO_PI_RECIPROCAL) - 1);
+            }
             break;
         case DC:
             return DC_value;
