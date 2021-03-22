@@ -18,6 +18,7 @@ public:
 
     void setWaveform(const Waveform _waveform);
     void setFreq(const float _freq);
+    void setDuty(float _duty);
     void setDC(const float);
 
     float getNext();

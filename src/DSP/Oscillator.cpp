@@ -4,7 +4,7 @@
 Oscillator::Oscillator(Waveform _waveform) {
         phase = 0.0;
         freq = 0;
-        duty = 0.0;
+        duty = 0.5;
         DC_value = 0;
         waveform = _waveform;
     }
@@ -22,6 +22,15 @@ void Oscillator::setFreq(const float _freq) {
     freq = _freq;
     freq_reciprocal = 1.0 / freq;
     phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
+}
+
+void Oscillator::setDuty(float _duty) {
+    if (_duty <= 0.0) {
+        _duty = 0.001;
+    } else if (_duty >= 1.0) {
+        _duty = 0.999;
+    }
+    duty = _duty;
 }
 
 void Oscillator::setDC(const float _dc) {

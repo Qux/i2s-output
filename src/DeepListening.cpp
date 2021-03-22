@@ -2,6 +2,7 @@
 
 void DeepListening::setup() {
     osc.setFreq(440);
+    osc.setWaveform(osc.Triangle);
     previousTime = millis();
 }
 
