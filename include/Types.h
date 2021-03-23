@@ -15,3 +15,10 @@ namespace Types {
 
 typedef DelayLine<StereoSample> StereoDelay;
 typedef DelayLine<float> MonoDelay;
+
+
+enum Time_Unit {
+    Micros = 0,
+    Millis, 
+    Seconds,
+};

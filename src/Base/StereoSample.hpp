@@ -45,7 +45,6 @@ public:
     StereoSample& operator/=(const float);
     
     float L, R;
-    
 };
 
 
@@ -91,11 +90,13 @@ inline StereoSample StereoSample::operator+(const StereoSample& val) const {
 inline StereoSample StereoSample::operator+(const float val) const {
     return StereoSample(this->L + val, this->R + val);
 };
+
 inline StereoSample& StereoSample::operator+=(const StereoSample& val) {
     this->L += val.L;
     this->R += val.R;
     return *this;
 };
+
 inline StereoSample& StereoSample::operator+=(const float val) {
     this->L += val;
     this->R += val;
@@ -106,6 +107,7 @@ inline StereoSample& StereoSample::operator+=(const float val) {
 inline StereoSample StereoSample::operator-(const StereoSample& val) const {
     return StereoSample(this->L - val.L, this->R - val.R);
 };
+
 inline StereoSample StereoSample::operator-(const float val) const {
     return StereoSample(this->L - val, this->R - val);
 };
@@ -115,6 +117,7 @@ inline StereoSample& StereoSample::operator-=(const StereoSample& val) {
     this->R -= val.R;
     return *this;
 };
+
 inline StereoSample& StereoSample::operator-=(const float val) {
     this->L -= val;
     this->R -= val;
@@ -125,6 +128,7 @@ inline StereoSample& StereoSample::operator-=(const float val) {
 inline StereoSample StereoSample::operator*(const StereoSample& val) const {
     return StereoSample(this->L * val.L, this->R * val.R);
 };
+
 inline StereoSample StereoSample::operator*(const float val) const {
     return StereoSample(this->L * val, this->R * val);
 };
@@ -144,6 +148,7 @@ inline StereoSample& StereoSample::operator*=(const float val) {
 inline StereoSample StereoSample::operator/(const StereoSample& val) const {
     return StereoSample(this->L / val.L, this->R / val.R);
 };
+
 inline StereoSample StereoSample::operator/(const float val) const {
     return StereoSample(this->L / val, this->R / val);
 };
@@ -153,6 +158,7 @@ inline StereoSample& StereoSample::operator/=(const StereoSample& val) {
     this->R /= val.R;
     return *this;
 };
+
 inline StereoSample& StereoSample::operator/=(const float val) {
     this->L /= val;
     this->R /= val;

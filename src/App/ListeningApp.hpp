@@ -3,7 +3,8 @@
 #include <Arduino.h>
 
 #include <cstddef>
-#include <mutex>
+#include <functional>
+
 
 #include "Config.h"
 #include "Types.h"
