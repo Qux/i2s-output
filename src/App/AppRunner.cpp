@@ -43,12 +43,6 @@ void AppRunner::init() {
 
 void AppRunner::run() {
     this->init();
-
-
-    while (true) {                
-        app->control();
-        // vTaskDelay(Config::Control_Interval);
-        vPortYield();
-    }
+    app->controlLoop();
 }
 

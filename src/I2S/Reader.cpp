@@ -11,22 +11,24 @@ void I2S::audioReadTask(void* param) {
             
             if (event.type == I2S_EVENT_RX_DONE)  {                    
                 static Types::audiobuf_t tmpbuf;                
+                
                 std::size_t i2s_bytes_read = 0; // placeholder for counting incoming data bytes
+                i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);     // read from i2s                
                 
-                i2s_read(Config::ADC::I2S_NUM, tmpbuf.data(), Config::ADC::DMA::I2S_Buffer_Size, &i2s_bytes_read, portMAX_DELAY);     // read from i2s                
-                
-                static StereoSample in, out;
+                // static StereoSample in, out;
 
-                constexpr std::size_t loop_count = tmpbuf.size() / 2;
-                for(std::size_t i = 0; i < loop_count; i++) {                    
-                    in.L = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
-                    in.R = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                // constexpr std::size_t loop_count = tmpbuf.size() / 2;
+                // for(std::size_t i = 0; i < loop_count; i++) {                    
+                //     in.L = static_cast<float>(tmpbuf[2 * i]) * Config::Bit_Range_Reciprocal;
+                //     in.R = static_cast<float>(tmpbuf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
                     
-                    reader->app->dsp(in, out);
+                //     reader->app->dsp(in, out);
 
-                    tmpbuf[2*i] = static_cast<int>(out.R * Config::Bit_Range);
-                    tmpbuf[2*i + 1] = static_cast<int>(out.L * Config::Bit_Range);
-                }                
+                //     tmpbuf[2*i] = static_cast<int>(out.R * Config::Bit_Range);
+                //     tmpbuf[2*i + 1] = static_cast<int>(out.L * Config::Bit_Range);
+                // }         
+
+                reader->app->beginDSP(tmpbuf);       
                 
                 reader->buffer->push(tmpbuf);                               
             }
@@ -39,14 +41,14 @@ I2S::Reader::Reader(ListeningApp* _app) : app{_app} {}
 
 void I2S::Reader::begin() {
     const i2s_config_t i2s_config {
-        .mode = static_cast<i2s_mode_t>(I2S_MODE_SLAVE | I2S_MODE_RX),                                   // Only TX
+        .mode = static_cast<i2s_mode_t>(I2S_MODE_SLAVE | I2S_MODE_RX),  // Only TX
         .sample_rate = Config::Sampling_Rate,
         .bits_per_sample = Config::Bit_Rate,
-        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,                           //2-channels
+        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //2-channels
         .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S),  //I2S_COMM_FORMAT_STAND_I2S - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,   //Interrupt level 1
-        .dma_buf_count = Config::ADC::DMA::Buffer_Count,
-        .dma_buf_len = Config::ADC::DMA::Buffer_Length, //64,
+        .dma_buf_count = Config::DMA::Buffer_Count,
+        .dma_buf_len = Config::DMA::Buffer_Length, //64,
         .use_apll = false,
         .tx_desc_auto_clear = false,
         .fixed_mclk = Config::MCLK_Freq,
