@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <cstddef>
+#include <functional>
 
 #include "Config.h"
 #include "Types.h"
