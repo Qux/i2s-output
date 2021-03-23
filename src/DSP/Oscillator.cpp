@@ -4,6 +4,7 @@
 Oscillator::Oscillator(Waveform _waveform) {
         phase = 0.0;
         freq = 0;
+        duty = 0.5;
         DC_value = 0;
         waveform = _waveform;
     }
@@ -23,6 +24,15 @@ void Oscillator::setFreq(const float _freq) {
     phase_inc = TWO_PI * freq * Config::Sampling_Rate_Reciprocal;
 }
 
+void Oscillator::setDuty(float _duty) {
+    if (_duty <= 0.0) {
+        _duty = 0.001;
+    } else if (_duty >= 1.0) {
+        _duty = 0.999;
+    }
+    duty = _duty;
+}
+
 void Oscillator::setDC(const float _dc) {
     DC_value = _dc;
 }
@@ -33,32 +43,20 @@ float Oscillator::getNext() {
     - returns -1.0 ~ 1.0
     */    
     float t = 0.0;
-    float duty = 0.5; // 0.0 < duty < 1.0
+
+    phase += phase_inc; 
+    while (TWO_PI <= phase) {
+        phase -= TWO_PI;
+    }
 
     switch (waveform) {
         case Sin:
-            phase += phase_inc; 
-
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             return sin(phase);
             break;
         case Cos:
-            phase += phase_inc; 
-
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             return cos(phase);
             break;
         case Triangle:
-            
-
-            phase += phase_inc;
-            while (TWO_PI <= phase) {
-                phase -= TWO_PI;
-            }
             t = -1.0 + 2.0 * (0.5 * phase / ((1-duty) * TWO_PI) );
             if (t > 0) {
                 t = -1.0/duty + 1.0 + 2.0 * (0.5 * phase / (duty * TWO_PI) );
@@ -66,10 +64,18 @@ float Oscillator::getNext() {
             return 2.0 * (fabsf(t) - 0.5);
             break;
         case Square:
-            return 0;
+            if (phase < duty * TWO_PI) {
+                return 1.0;
+            } else {
+                return -1.0;
+            }
             break;
         case Sawtooth:
-            return 0;
+            if (duty >= 0.5) {
+                return ((phase * 2.0 * TWO_PI_RECIPROCAL) - 1);
+            } else {
+                return (-1) * ((phase * 2.0 * TWO_PI_RECIPROCAL) - 1);
+            }
             break;
         case DC:
             return DC_value;
