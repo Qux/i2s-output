@@ -2,13 +2,15 @@
 
 #include "App/ListeningApp.hpp"
 
-#include <functional>
+// #include <functional>
+// #include "Ticker.h"
 
-#include "Ticker.h"
+#include <cstddef>
 
 #include "DSP/Oscillator.h"
 #include "DSP/DelayLine.h"
-#include "DSP/Line.h"
+// #include "DSP/Line.h"
+#include "DSP/ADSR.h"
 
 class DeepListening : public ListeningApp{
 public:    
@@ -24,9 +26,9 @@ private:
 
     StereoDelay del = StereoDelay(mstosamps(1000));
 
-    DSP::Line line;
-    // Ticker ticker;
-    // Control::Metro metro;
-    // Event eve;
+    // DSP::Line line;
+    DSP::ADSR adsr;
+    std::size_t counter;    
+
 };
 

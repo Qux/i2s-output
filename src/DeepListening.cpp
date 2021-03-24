@@ -5,30 +5,46 @@ void DeepListening::setup() {
     lfo.setFreq(1.0);
     osc.setWaveform(osc.Triangle);
     previousTime = millis();
-    // ticker.attach(1.000, std::bind(bang1sec));
-}
 
+    adsr.set(10, 100, 0.3, 800);
+    counter = 0;
+}
 
 void DeepListening::dsp(const StereoSample& in, StereoSample& out) {
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;
 
-    out = val * pow(line(), 2.0); // float or StereoSample
+    out = val * adsr.get(); // float or StereoSample
 
     out.L += del.get(24000).L;
     del.add(in);
-    line.next();
+    adsr.next();
 };
 
 void DeepListening::control() {
-    const std::size_t currentTime = millis();
-    if(currentTime - previousTime >= 200) {
-        osc.setFreq(random(110, 220));
-        line(1.0, 0.2, 100);        
+    const std::size_t currentTime = millis();    
+    if(currentTime - previousTime >= 1000) {        
+        this->bang1sec();
         previousTime = currentTime;        
     }
 }
 
 void DeepListening::bang1sec() {
-    osc.setFreq(random(440, 880));
+    // osc.setFreq(random(440, 880));
+    switch (counter)    {
+    case 0:
+        osc.setFreq(random(440, 880));
+        adsr.noteOn();
+        counter++;
+        break;
+    case 1:
+        adsr.noteOff();
+        counter++;
+        break;
+    case 2:
+        counter = 0;
+        break;
+    default:
+        break;
+    }
 }
