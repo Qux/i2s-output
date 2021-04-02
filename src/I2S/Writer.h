@@ -15,7 +15,6 @@
 #include "driver/i2s.h"
 #include "esp_system.h"
 
-
 #include "Config.h"
 #include "Types.h"
 #include "App/ListeningApp.hpp"

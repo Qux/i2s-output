@@ -28,7 +28,7 @@ void I2S::audioReadTask(void* param) {
                 //     tmpbuf[2*i + 1] = static_cast<int>(out.L * Config::Bit_Range);
                 // }         
 
-                reader->app->beginDSP(tmpbuf);       
+                reader->app->runDSP(tmpbuf);       
                 
                 reader->buffer->push(tmpbuf);                               
             }

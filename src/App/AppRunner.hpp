@@ -17,15 +17,13 @@
 
 class AppRunner {
 public:
-
     AppRunner(ListeningApp* _app);
         
     void initReader();
     void initWriter();
 
     void init();
-    void run();  
-
+    void run();
 
 private:    
     ListeningApp* app;

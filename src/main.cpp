@@ -6,19 +6,23 @@
 #include <memory>
 
 /* Original */
+#include "App/ListeningApp.hpp"
 #include "App/AppRunner.hpp"
 
 /* Tests */
 #include "test/UnitTest.h"
 
+
 void setup() {    
     // std::cout << "PSRAM Found: " << psramFound() << std::endl
     UnitTest::run();
 
-    // auto app = std::make_unique<DeepListening>();   
-    DeepListening* app = new DeepListening(); 
+    // DeepListening* app = new DeepListening(); 
+    ListeningApp* app = new ListeningApp();
     auto runner = std::make_unique<AppRunner>(app);
     runner->run();
+
+    // DeepListening::setup();    
 }
 
 void loop() {}

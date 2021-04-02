@@ -21,7 +21,7 @@ void I2S::audioWriteTask(void* param) {
                     //     tmpbuf[2*i + 1] = static_cast<int>(out.L * Config::Bit_Range);  
                     // }
 
-                    writer->app->beginDSP(tmpbuf);
+                    writer->app->runDSP(tmpbuf);
 
                     std::size_t i2s_bytes_write = 0; // Could be nullptr   
                     i2s_write(Config::DAC::I2S_NUM, tmpbuf.data(), Config::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
@@ -56,7 +56,7 @@ void I2S::Writer::begin()  {
         .bck_io_num = Config::DAC::Pins::BCK,
         .ws_io_num = Config::DAC::Pins::WS,
         .data_out_num = Config::DAC::Pins::DO,
-        .data_in_num = Config::DAC::Pins::DI              //Not used
+        .data_in_num = Config::DAC::Pins::DI    //Not used
     };
     i2s_driver_install(Config::DAC::I2S_NUM, &i2s_config, Config::DMA::Buffer_Count, &this->queue);
     i2s_set_pin(Config::DAC::I2S_NUM, &pin_config);

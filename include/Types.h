@@ -13,12 +13,18 @@ namespace Types {
 }
 
 
-typedef DelayLine<StereoSample> StereoDelay;
-typedef DelayLine<float> MonoDelay;
+using StereoDelay = DelayLine<StereoSample>;
+using MonoDelay = DelayLine<float>;
 
 
 enum Time_Unit {
     Micros = 0,
     Millis, 
     Seconds,
+};
+
+class History {
+    public:
+        StereoDelay input = StereoDelay(Config::History::Size);
+        StereoDelay output = StereoDelay(Config::History::Size);
 };

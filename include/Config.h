@@ -65,6 +65,10 @@ namespace Config {
             const int DI = I2S_PIN_NO_CHANGE;
         }
     }
+
+    namespace History {
+        constexpr std::size_t Size = 48000;
+    }
 };
 
 #endif
