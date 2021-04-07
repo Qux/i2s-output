@@ -42,7 +42,9 @@ void AppRunner::init() {
 }
 
 void AppRunner::run() {
-    this->init();
+    // this->init();
     app->controlLoop();
 }
+
+
 

@@ -7,8 +7,7 @@ void I2S::audioWriteTask(void* param) {
     while(true) {
         i2s_event_t event;
         if(xQueueReceive(writer->queue, &event, portMAX_DELAY) == pdPASS) {
-            if(event.type == I2S_EVENT_TX_DONE) {   // if transmission is done
-                        
+            if(event.type == I2S_EVENT_TX_DONE) {   // if transmission is done                                
                 if(Config::Stream == Stream_State::Output_Only) {               
                     
                     // static StereoSample out;
@@ -31,6 +30,7 @@ void I2S::audioWriteTask(void* param) {
                 }                
             }
         }
+        vPortYield();
     }
 }
 
@@ -47,10 +47,10 @@ void I2S::Writer::begin()  {
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
         .dma_buf_count = Config::DMA::Buffer_Count,
         .dma_buf_len = Config::DMA::Buffer_Length,//64,   samples
-        .use_apll = true,
+        .use_apll = false,
         .tx_desc_auto_clear = false,
-        // .fixed_mclk = Config::Sampling_Rate * 256,
-        .fixed_mclk = Config::MCLK_Freq,
+        // .fixed_mclk = Config::MCLK_Freq,        
+        .fixed_mclk = 0,
     };
     i2s_pin_config_t pin_config = {
         .bck_io_num = Config::DAC::Pins::BCK,

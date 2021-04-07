@@ -37,7 +37,6 @@ private:
 #include "Config.h"
 #include "Types.h"
 
-
 namespace DeepListening {
     void setup();
     void dsp(const StereoSample& in, StereoSample& out);

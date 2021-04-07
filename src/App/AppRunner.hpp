@@ -23,6 +23,7 @@ public:
     void initWriter();
 
     void init();
+    void runThreads();
     void run();
 
 private:    

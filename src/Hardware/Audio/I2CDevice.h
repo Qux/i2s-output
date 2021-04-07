@@ -1,0 +1,24 @@
+#pragma once
+
+#include <Arduino.h>
+#include "Wire.h"
+
+class I2CDevice {
+    public:
+        I2CDevice();
+        I2CDevice(const int _device_address);
+        virtual void setup();
+        virtual void setup(const int _device_address);
+
+        void beginTransmission();
+        int endTransmission(bool sendStop = true);
+        
+        void write(const int register_address, const int val) const;
+        void bit_write(const int register_address, const int bit, const bool val) const;
+
+        int read(const int register_address) const;
+        bool bit_read(const int register_address, const std::size_t bit) const;
+
+    private:        
+        int device_address;
+};

@@ -52,8 +52,8 @@ class ListeningApp {
                 if(!this->inDSP)  {
                     DeepListening::control();
                 }
-                vPortYield();
-                // vTaskDelay(Config::Control_Interval);    
+                // vPortYield();
+                vTaskDelay(Config::Control_Interval);    
             }
         }
         
