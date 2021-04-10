@@ -32,7 +32,7 @@ namespace Config {
     constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
-    constexpr Stream_State Stream = InOut;  // InOut, Output_Only, Input_Only, No_Audio
+    constexpr Stream_State Stream = Output_Only;  // InOut, Output_Only, Input_Only, No_Audio
     constexpr std::size_t Control_Interval_ms = 2;
     constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
 
@@ -44,7 +44,13 @@ namespace Config {
         constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
     }
 
+    namespace Hardware{
+        constexpr std::size_t Boot_Time = 1;
+    }
+    
+
     namespace ADC {
+        const bool Use_I2C_Device = false; 
         const i2s_port_t I2S_NUM = I2S_NUM_0;
 
         namespace Pins {
@@ -56,6 +62,7 @@ namespace Config {
     }    
 
     namespace DAC {
+        const bool Use_I2C_Device = false;
         const i2s_port_t I2S_NUM = I2S_NUM_1;
 
         namespace Pins {

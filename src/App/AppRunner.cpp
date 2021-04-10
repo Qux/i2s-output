@@ -1,6 +1,7 @@
 #include "AppRunner.hpp"
 
 using namespace Types;
+using namespace Hardware::Audio;
 
 AppRunner::AppRunner(ListeningApp* _app) : app{_app} {
     this->buf = new fifobuffer_t;
@@ -21,28 +22,55 @@ void AppRunner::initWriter() {
     writer->begin();
 }
 
+void AppRunner::initADC() {
+    if(Config::ADC::Use_I2C_Device) {
+        adc.setup();
+        adc.setClockMode(Hardware::Audio::Clock_Mode::Master);
+        adc.setMixer();
+    }
+}
+
+void AppRunner::initDAC() {
+    if(Config::DAC::Use_I2C_Device) {
+        dac.setup();
+        dac.enable_PLL(false);
+        dac.setSampleRate(Config::Sampling_Rate);
+        dac.setClockMode(Clock_Mode::Master);
+        dac.setWordLength(Word_Length::WL_32bit);
+        dac.halfOutputRms(true);
+        dac.wakeup();
+    }
+}
+
 void AppRunner::init() {
     app->setup();
     switch (Config::Stream) {
         case InOut:
-            initReader();
+            initADC();
+            initDAC();
+            vTaskDelay(Config::Hardware::Boot_Time);
+            initReader();            
             initWriter();
             break;
 
         case Input_Only:
+            initADC();
+            vTaskDelay(Config::Hardware::Boot_Time);
             initReader();
             break;
 
         case Output_Only:
+            initDAC();
+            vTaskDelay(Config::Hardware::Boot_Time);
             initWriter();
             break;
-        case No_Audio:
+
+        case No_Audio: 
             break;
     }
 }
 
 void AppRunner::run() {
-    // this->init();
     app->controlLoop();
 }
 

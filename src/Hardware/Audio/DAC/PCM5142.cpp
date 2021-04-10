@@ -99,5 +99,120 @@ void PCM5142::dump() {
 }
 
 
+int PCM5142::setDataFormat(const Data_Format format) const {
+    constexpr uint8_t Data_Format_Registor = 40;
+    constexpr uint8_t AFMT_1 = 5;
+    constexpr uint8_t AFMT_0 = 4;
+    moveToPage(0);
+
+    int bits = read(Data_Format_Registor);
+
+    switch (format)    {
+    case Data_Format::I2S:
+        bits |= bit_unflag(bits, AFMT_1);
+        bits |= bit_unflag(bits, AFMT_0);
+        break;
+    case Data_Format::TDM_DSP:
+        bits |= bit_unflag(bits, AFMT_1);
+        bits |= bit_flag(bits, AFMT_0);
+        break;
+    case Data_Format::RTJ:
+        bits |= bit_flag(bits, AFMT_1);
+        bits |= bit_unflag(bits, AFMT_0);
+        break;
+    case Data_Format::LTJ:
+        bits |= bit_flag(bits, AFMT_1);
+        bits |= bit_flag(bits, AFMT_0);
+        break;
+    default:
+        break;
+    }
+
+    return write(Data_Format_Registor, bits);  // use i2s, 32bit
+}
+
+int PCM5142::setWordLength(const Word_Length wl) const {
+    constexpr uint8_t Word_Length_Registor = 40;
+    constexpr uint8_t ALEN_1 = 1;
+    constexpr uint8_t ALEN_0 = 0;
+
+    int bits = read(Word_Length_Registor);
+    bits = bit_unflag(bits, ALEN_1);
+    bits = bit_unflag(bits, ALEN_0);
+
+    switch(wl) {
+        case Word_Length::WL_16bit:        
+            break;
+        case Word_Length::WL_20bit:
+            bits |= 1;
+            break;
+        
+        case Word_Length::WL_24bit:
+            bits |= 0b10;
+            break;
+
+        case Word_Length::WL_32bit:
+            bits |= 0b11;
+            break;
+
+        default:
+            break;
+    }
+
+    std::cout << "WL: " << std::bitset<8>(bits) << std::endl;
+
+    return write(Word_Length_Registor, bits);
+}
 
 
+int PCM5142::setSampleRate(const Sampling_Rate sr) const {
+    constexpr auto FS_Speed_Mode_Register = 34;
+    constexpr uint8_t FSSP1 = 1;
+    constexpr uint8_t FSSP0 = 0;
+
+    moveToPage(0);
+    auto bits = read(FS_Speed_Mode_Register);
+    switch (sr)    {
+        case Sampling_Rate::SR_44k:
+        case Sampling_Rate::SR_48k:
+            bit_unflag(bits, FSSP1);
+            bit_unflag(bits, FSSP0);
+            break;
+        case Sampling_Rate::SR_88k: 
+        case Sampling_Rate::SR_96k:
+            bit_unflag(bits, FSSP1);
+            bit_flag(bits, FSSP0);
+            break;
+        case Sampling_Rate::SR_176k: 
+        case Sampling_Rate::SR_192k:
+            bit_flag(bits, FSSP1);
+            bit_unflag(bits, FSSP0);
+            break;
+        case Sampling_Rate::SR_384k:
+            bit_flag(bits, FSSP1);
+            bit_flag(bits, FSSP0);
+            break;
+        default:            
+            break;
+    }
+    return write(FS_Speed_Mode_Register, bits); // fs Quad speed
+}
+
+int PCM5142::setSampleRate(const std::size_t sr) const {
+    return this->setSampleRate(static_cast<Sampling_Rate>(sr));
+}
+
+void PCM5142::halfOutputRms(bool half_db) {
+    // beginTransmission();
+    write(0, 1);
+    if(half_db) {        
+        write(2, 0b00010001);
+    } else {
+        write(2, 0b00000000);
+    }
+    // endTransmission();
+};
+
+int PCM5142::moveToPage(const std::size_t page) const {
+    return write(0, page);
+}

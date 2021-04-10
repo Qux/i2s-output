@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "Types.h"
 #include "Base/StereoSample.hpp"
+#include "ListeningData.hpp"
 
 #include "DeepListening.hpp"
 
@@ -17,19 +18,19 @@ class ListeningApp {
             DeepListening::setup();
         }
 
-        virtual inline void dspLoop(Types::audiobuf_t& buf) {
-            static StereoSample in, out;
+        inline void dspLoop(Types::audiobuf_t& buf) {
+            static StereoSample in, out;            
             for(std::size_t i = 0; i < Config::DMA::Buffer_Size; i++) {
-                in.L = static_cast<float>(buf[2 * i]) * Config::Bit_Range_Reciprocal;   // covert int to float
-                in.R = static_cast<float>(buf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
+                in.R = static_cast<float>(buf[2 * i]) * Config::Bit_Range_Reciprocal;   // covert int to float
+                in.L = static_cast<float>(buf[2 * i + 1]) * Config::Bit_Range_Reciprocal;
 
-                // DeepListening::history.input.add(in);
+                data.history.input.add(in);
                     
-                DeepListening::dsp(in, out);
+                DeepListening::dsp(in, out, data);
 
                 buf[2 * i] = static_cast<int>(out.R * Config::Bit_Range); // convert float to int
                 buf[2 * i + 1] = static_cast<int>(out.L * Config::Bit_Range);
-                // DeepListening::history.input.add(out);
+                data.history.input.add(out);
             }
         }
 
@@ -50,7 +51,7 @@ class ListeningApp {
         inline void controlLoop() {
             while (true)  {                        
                 if(!this->inDSP)  {
-                    DeepListening::control();
+                    DeepListening::control(data);
                 }
                 // vPortYield();
                 vTaskDelay(Config::Control_Interval);    
@@ -59,4 +60,5 @@ class ListeningApp {
         
     private:
         bool inDSP;
+        ListeningData data;
 };

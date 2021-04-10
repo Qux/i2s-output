@@ -31,6 +31,7 @@ namespace Hardware  {
             SR_96k = 96000,
             SR_176k = 17600,
             SR_192k = 192000,
+            SR_384k = 384000,
         };
 
         enum struct Microphone_Type {
@@ -38,5 +39,20 @@ namespace Hardware  {
             External_Balanced_Microphones,
             Single_LR_Stereo,
         };
+
+        enum struct Data_Format {
+            I2S = 0,
+            TDM_DSP = 1,
+            RTJ = 2,
+            LTJ = 3,
+        };
+
+        enum struct Word_Length {
+            WL_16bit = 16,
+            WL_20bit = 20,
+            WL_24bit = 24,
+            WL_32bit = 32,
+        };
+
     }    
 }

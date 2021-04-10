@@ -27,11 +27,11 @@ int I2CDevice::endTransmission(bool sendStop) {
     return Wire.endTransmission(sendStop);
 }
 
-void I2CDevice::write(const int register_address, const int val) const {
+int I2CDevice::write(const int register_address, const int val) const {
     Wire.beginTransmission(device_address);
     Wire.write(register_address);
     Wire.write(val);    
-    Wire.endTransmission();
+    return Wire.endTransmission();
 }
 
 void I2CDevice::bit_write(const int register_address, const int bit, const bool state) const {
@@ -59,3 +59,11 @@ int I2CDevice::read(const int register_address) const {
 bool I2CDevice::bit_read(const int register_address, const std::size_t bit) const {
     return false;
 }   
+
+int I2CDevice::bit_flag(int bits, const uint8_t index) const {
+    return bits | (1 << index);
+};
+
+int I2CDevice::bit_unflag(int bits, const uint8_t index) const {
+    return bits & !(1 << index);
+};

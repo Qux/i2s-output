@@ -42,11 +42,11 @@ I2S::Reader::Reader(ListeningApp* _app) : app{_app} {}
 
 void I2S::Reader::begin() {
     const i2s_config_t i2s_config {
-        .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_TX),  // Only TX
+        .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX),  // Only TX
         .sample_rate = Config::Sampling_Rate,
         .bits_per_sample = Config::Bit_Rate,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //2-channels
-        .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),  //I2S_COMM_FORMAT_STAND_I2S - probably version thing
+        .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S),  //I2S_COMM_FORMAT_STAND_I2S - probably version thing
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,   //Interrupt level 1
         .dma_buf_count = Config::DMA::Buffer_Count,
         .dma_buf_len = Config::DMA::Buffer_Length, //64,

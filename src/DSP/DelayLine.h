@@ -28,9 +28,23 @@ private:
     }
 
 public:
-    DelayLine(std::size_t max_samples) : Buffer_Size{max_samples} {
-        psramInit();
-        buffer = static_cast<T*>(ps_calloc(Buffer_Size, sizeof(T)));
+    enum class RAM_Type {
+        PSRAM,
+        SRAM
+    };
+
+    DelayLine(std::size_t max_samples, const RAM_Type ram_type = RAM_Type::PSRAM) : Buffer_Size{max_samples} {
+        switch (ram_type)   {
+            case RAM_Type::PSRAM:
+                psramInit();
+                buffer = static_cast<T*>(ps_calloc(Buffer_Size, sizeof(T)));
+                break;
+            case RAM_Type::SRAM:
+                buffer = static_cast<T*>(calloc(Buffer_Size, sizeof(T)));
+            default:
+                break;
+        }
+
         z0_index = Buffer_Size - 1;
     };
 
@@ -61,5 +75,8 @@ public:
         return Buffer_Size;
     }
 };
+
+using StereoDelay = DelayLine<StereoSample>;
+using MonoDelay = DelayLine<float>;
 
 #endif // !DELAYLINE_H

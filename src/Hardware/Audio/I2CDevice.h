@@ -13,12 +13,15 @@ class I2CDevice {
         void beginTransmission();
         int endTransmission(bool sendStop = true);
         
-        void write(const int register_address, const int val) const;
+        int write(const int register_address, const int val) const;
         void bit_write(const int register_address, const int bit, const bool val) const;
 
         int read(const int register_address) const;
         bool bit_read(const int register_address, const std::size_t bit) const;
 
+    protected:
+        int bit_flag(int bits, const uint8_t index) const;
+        int bit_unflag(int bits, const uint8_t index) const;
     private:        
         int device_address;
 };

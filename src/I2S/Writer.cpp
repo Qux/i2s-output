@@ -27,13 +27,13 @@ void I2S::audioWriteTask(void* param) {
                 } else {            
                     std::size_t i2s_bytes_write = 0; // Could be nullptr           
                     i2s_write(Config::DAC::I2S_NUM, writer->buf->pop().data(), Config::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);
+                    vPortYield();
                 }                
             }
         }
-        vPortYield();
+        
     }
 }
-
 
 I2S::Writer::Writer(ListeningApp* _app) : app{_app} {}
 
@@ -52,6 +52,7 @@ void I2S::Writer::begin()  {
         // .fixed_mclk = Config::MCLK_Freq,        
         .fixed_mclk = 0,
     };
+
     i2s_pin_config_t pin_config = {
         .bck_io_num = Config::DAC::Pins::BCK,
         .ws_io_num = Config::DAC::Pins::WS,

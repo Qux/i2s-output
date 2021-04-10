@@ -1,10 +1,13 @@
 #include "DeepListening.hpp"
 
+#include <iostream>
+
 #include "Ticker.h"
 #include "DSP/Oscillator.h"
 #include "DSP/DelayLine.h"
 #include "DSP/Line.h"
 #include "DSP/ADSR.h"
+
 
 using namespace DeepListening;
 History history;
@@ -23,14 +26,15 @@ Ticker ticker;
 static void func() {
     static bool state = true;
     if(state) {
-        osc.setFreq(random(440, 880));
+        const int pitch = random(60, 72);
+        const float freq = mtof(pitch);        
+        osc.setFreq(freq);
         adsr.noteOn();
     } else {
         adsr.noteOff();
     }
 
     state = !state;
-
 }
 
 void DeepListening::setup() {
@@ -39,28 +43,25 @@ void DeepListening::setup() {
     osc.setWaveform(osc.Sin);
     previousTime = millis();
 
-    adsr.set(10, 100, 0.3, 800);
+    adsr.set(10, 100, 0.1, 800);
     counter = 0;
 
     ticker.attach_ms(2000, func);
 }
 
-void DeepListening::dsp(const StereoSample& in, StereoSample& out) {
+void DeepListening::dsp(const StereoSample& in, StereoSample& out, const ListeningData& data) {
     const float val = osc.getNext();    
-    // const float lfoval = (lfo.getNext() + 1.0) * 0.5;
+    // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    // out = val * adsr.get(); // float or StereoSample
-    // out = val;
-    
-    out = in;
-    out.L = val * 0.5 * adsr.get(); 
+    out = val * adsr.get();
+    // out = in + del.get(mstosamps(500)) * 0.5;
     
     // out.L += del.get(mstosamps(500)).L;
-    // del.add(in);
+    // del.add(out);
     adsr.next();
 };
 
-void DeepListening::control() {
+void DeepListening::control(const ListeningData& data) {
     // const std::size_t currentTime = millis();    
     // if(currentTime - previousTime >= 1000) {        
     //     // this->bang1sec();

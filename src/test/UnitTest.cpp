@@ -90,7 +90,7 @@ void UnitTest::run() {
     std::cout << "mstosamps test..." << std::endl;
     assert_equal(ListeningApp::mstosamps(1000), Config::Sampling_Rate, true);
     std::cout << "sampstoms test..." << std::endl;
-    assert_equal(ListeningApp::sampstoms(48000), 1000.0);
+    assert_equal(ListeningApp::sampstoms(Config::Sampling_Rate), 1000.0);
 
     StereoSampleTest::run();
 
