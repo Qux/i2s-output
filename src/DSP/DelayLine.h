@@ -41,6 +41,7 @@ public:
                 break;
             case RAM_Type::SRAM:
                 buffer = static_cast<T*>(calloc(Buffer_Size, sizeof(T)));
+                break;
             default:
                 break;
         }
