@@ -2,7 +2,6 @@
 
 #include "Line.h"
 
-
 namespace DSP {
     class ADSR {
         public:

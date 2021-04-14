@@ -11,6 +11,7 @@ namespace Hardware  {
                 PCM1863(const bool AD1 = false);   
                 void setup() override;
                 void setup(const bool AD1);
+                void setGain(const float _gain = 0.0);
                 void setSamplingRate(Hardware::Audio::Sampling_Rate sr);
                 void setClockMode(Hardware::Audio::Clock_Mode);
                 void setClockRatio(Hardware::Audio::SCK_Ratio);

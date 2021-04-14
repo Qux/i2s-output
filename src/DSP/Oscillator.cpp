@@ -1,4 +1,4 @@
-#include "Oscillator.h"
+#include "Oscillator.hpp"
 
 
 Oscillator::Oscillator(Waveform _waveform) {

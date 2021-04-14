@@ -1,11 +1,9 @@
 #pragma once
 
 
-#include <Arduino.h>
-
-
+#include "Config.hpp"
 #include <cmath>
-#include "Config.h"
+
 
 class Oscillator {
 public: 
@@ -32,7 +30,7 @@ private:
     float duty; // 0.0 < duty < 1.0
     float DC_value;
     Waveform waveform;
-
+    
     // If Arduino.h is included this will not be called.
     #ifndef TWO_PI  
     static constexpr float TWO_PI = M_PI * 2.0;    

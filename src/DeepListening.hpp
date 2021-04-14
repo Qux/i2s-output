@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Config.h"
-#include "Types.h"
+#include "Config.hpp"
+#include "Types.hpp"
 
 #include "App/ListeningData.hpp"
 

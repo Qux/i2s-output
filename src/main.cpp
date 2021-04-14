@@ -2,9 +2,8 @@
 - Helpful repo: https://github.com/atomic14/esp32_audio
 */
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include <memory>
-
 
 /* Original */
 #include "App/ListeningApp.hpp"
@@ -14,16 +13,13 @@
 #include "test/UnitTest.h"
 
 
-void setup() {    
-    // std::cout << "PSRAM Found: " << psramFound() << std::endl
+extern "C" void app_main() {
+    initArduino();
     UnitTest::run();
-    
-    // DeepListening* app = new DeepListening(); 
+        
     ListeningApp* app = new ListeningApp();
     auto runner = std::make_unique<AppRunner>(app);
     runner->init();
 
     runner->run();
 }
-
-void loop() {}

@@ -26,6 +26,7 @@ void AppRunner::initADC() {
     if(Config::ADC::Use_I2C_Device) {
         adc.setup();
         adc.setClockMode(Hardware::Audio::Clock_Mode::Master);
+        adc.setGain();
         adc.setMixer();
     }
 }

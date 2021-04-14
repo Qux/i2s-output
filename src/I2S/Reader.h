@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <Arduino.h>
+// #include <Arduino.h>
 
 /* FREERTOS */ 
 #include "freertos/FreeRTOS.h"
@@ -13,8 +13,8 @@
 #include "esp_system.h"
 
 
-#include "Config.h"
-#include "Types.h"
+#include "Config.hpp"
+#include "Types.hpp"
 #include "App/ListeningApp.hpp"
 
 

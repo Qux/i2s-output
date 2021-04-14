@@ -40,7 +40,7 @@ void I2CDevice::bit_write(const int register_address, const int bit, const bool 
     if(state) {
         value |= (1 << bit);
     } else {
-        value &= !(1 << bit);
+        value &= ~(1 << bit);
     }
  
     this->write(register_address, value);
@@ -65,5 +65,5 @@ int I2CDevice::bit_flag(int bits, const uint8_t index) const {
 };
 
 int I2CDevice::bit_unflag(int bits, const uint8_t index) const {
-    return bits & !(1 << index);
+    return bits & ~(1 << index);
 };

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <Arduino.h>
+// #include <Arduino.h>
 
 /* C++ */
 #include <array>
@@ -15,8 +15,8 @@
 #include "driver/i2s.h"
 #include "esp_system.h"
 
-#include "Config.h"
-#include "Types.h"
+#include "Config.hpp"
+#include "Types.hpp"
 #include "App/ListeningApp.hpp"
 #include "Util/Static_FIFO.h"
 #include "Util/Math_Utils.h"

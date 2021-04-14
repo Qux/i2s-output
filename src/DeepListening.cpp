@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "Ticker.h"
-#include "DSP/Oscillator.h"
+#include "DSP/Oscillator.hpp"
 #include "DSP/DelayLine.h"
 #include "DSP/Line.h"
 #include "DSP/ADSR.h"
@@ -26,7 +26,7 @@ Ticker ticker;
 static void func() {
     static bool state = true;
     if(state) {
-        const int pitch = random(60, 72);
+        const int pitch = random(72, 84);
         const float freq = mtof(pitch);        
         osc.setFreq(freq);
         adsr.noteOn();
@@ -43,10 +43,10 @@ void DeepListening::setup() {
     osc.setWaveform(osc.Sin);
     previousTime = millis();
 
-    adsr.set(10, 100, 0.1, 800);
+    adsr.set(10, 30, 0.1, 200);
     counter = 0;
 
-    ticker.attach_ms(2000, func);
+    ticker.attach_ms(1000, func);
 }
 
 void DeepListening::dsp(const StereoSample& in, StereoSample& out, const ListeningData& data) {
@@ -54,10 +54,12 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
     out = val * adsr.get();
-    // out = in + del.get(mstosamps(500)) * 0.5;
+    // out = val;
+    // out = in;
+    out += del.get(mstosamps(500)) * 0.5;
     
     // out.L += del.get(mstosamps(500)).L;
-    // del.add(out);
+    del.add(out);
     adsr.next();
 };
 

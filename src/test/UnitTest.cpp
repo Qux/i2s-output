@@ -18,14 +18,21 @@ void UnitTest::run() {
 
     std::cout << "Beginning unit test...\n" << std::endl;
 
-    #ifdef BOARD_HAS_PSRAM
-    // printf("SPIRAM FOUND - %d\n", esp_spiram_get_size());
-    printf("SPIRAM FOUND\n");
-    #endif // DEBUG
-    #ifdef CONFIG_SPIRAM_USE
-    printf("SPIRAM ENABLED\n");
-    #endif
-
+    
+    
+    if(psramFound()) {
+        printf("PSRAM FOUND\n");
+        psramInit();
+        printf("PSRAM ENABLED\n");
+        // printf("Size - %d\n", esp_spiram_get_size());
+    } else {
+        printf("[ERROR] PSRAM NOT FOUND\n");
+        while(true) { 
+            vPortYield();
+        }
+    }
+    
+    
     using namespace UnitTest;
     
     DelayLine<int> idelay(10);    

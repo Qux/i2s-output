@@ -118,8 +118,6 @@ int PCM5242::setWordLength(const Word_Length wl) const {
             break;
     }
 
-    std::cout << "WL: " << std::bitset<8>(bits) << std::endl;
-
     return write(Word_Length_Registor, bits);
 }
 

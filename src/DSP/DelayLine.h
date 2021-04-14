@@ -3,13 +3,12 @@
 #ifndef DELAYLINE_H
 #define DELAYLINE_H
 
-#include <Arduino.h>
-
 #include <cstddef>
 #include <array>
 
-#include "esp_himem.h"
+// #include "esp_himem.h"
 
+#include "Types.hpp"
 #include "Base/StereoSample.hpp"
 
 template<typename T = float>class DelayLine    {
@@ -28,11 +27,6 @@ private:
     }
 
 public:
-    enum class RAM_Type {
-        PSRAM,
-        SRAM
-    };
-
     DelayLine(std::size_t max_samples, const RAM_Type ram_type = RAM_Type::PSRAM) : Buffer_Size{max_samples} {
         switch (ram_type)   {
             case RAM_Type::PSRAM:

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Types.h"
+#include "Types.hpp"
+#include "DSP/DelayLine.h"
 
 struct History {
     StereoDelay input = StereoDelay(Config::History::Size);

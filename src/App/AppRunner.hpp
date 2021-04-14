@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Arduino.h>
+// #include "Arduino.h"
 
 /** C++ **/
 #include <iostream>
 
-#include "Config.h"
-#include "Types.h"
+#include "Config.hpp"
+#include "Types.hpp"
 
 #include "App/ListeningApp.hpp"
 #include "ListeningData.hpp"

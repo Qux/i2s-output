@@ -17,11 +17,15 @@ void PCM1863::setSamplingRate(Sampling_Rate sr) {
 
 }
 
+void PCM1863::setGain(const float _gain) {
+    write(1, 0b01010000); // L ch gain
+    write(2, 0b01010000); // R ch gain
+}
+
 void PCM1863::setClockMode(Clock_Mode clk_mode) {
     write(0, 0);
     
-    write(1, 0b01010000); // L ch gain
-    write(2, 0b01010000); // R ch gain
+
     
     write(11, 0b00000000);  // i2s settings
 
