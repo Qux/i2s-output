@@ -7,6 +7,7 @@
 #include "DSP/DelayLine.h"
 #include "DSP/Line.h"
 #include "DSP/ADSR.h"
+#include "DSP/Filter.h"
 
 
 using namespace DeepListening;
@@ -15,6 +16,7 @@ History history;
 std::size_t previousTime;
 Oscillator osc;
 Oscillator lfo;
+Filter fil;
 
 StereoDelay del = StereoDelay(mstosamps(1000));
 
@@ -28,7 +30,7 @@ static void func() {
     if(state) {
         const int pitch = random(72, 84);
         const float freq = mtof(pitch);        
-        osc.setFreq(freq);
+        // osc.setFreq(freq);
         adsr.noteOn();
     } else {
         adsr.noteOff();
@@ -40,7 +42,9 @@ static void func() {
 void DeepListening::setup() {
     osc.setFreq(440);
     lfo.setFreq(1.0);
-    osc.setWaveform(osc.Sin);
+    osc.setWaveform(osc.Triangle);
+    fil.setFiltertype(fil.LowPass);
+
     previousTime = millis();
 
     adsr.set(10, 30, 0.1, 200);
@@ -53,14 +57,14 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    out = val * adsr.get();
+    out = fil.getNext(val);
     // out = val;
     // out = in;
-    out += del.get(mstosamps(500)) * 0.5;
+    // out += del.get(mstosamps(500)) * 0.5;
     
     // out.L += del.get(mstosamps(500)).L;
-    del.add(out);
-    adsr.next();
+    // del.add(out);
+    // adsr.next();
 };
 
 void DeepListening::control(const ListeningData& data) {
