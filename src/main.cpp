@@ -14,7 +14,7 @@
 
 
 extern "C" void app_main() {
-    initArduino();
+    initArduino();    
     UnitTest::run();
         
     ListeningApp* app = new ListeningApp();

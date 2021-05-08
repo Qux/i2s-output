@@ -16,18 +16,11 @@ private:
     // std::array<T, N> buffer; 
     T* buffer;
     const std::size_t Buffer_Size;
-    std::size_t z0_index;    
+    std::size_t head;    
 
-    std::size_t get_index_on_buffer(std::size_t z_index) const {
-        if(z0_index < z_index) {
-            return Buffer_Size - (z_index - z0_index);
-        } else {
-            return z0_index - z_index;
-        }
-    }
 
 public:
-    DelayLine(std::size_t max_samples, const RAM_Type ram_type = RAM_Type::PSRAM) : Buffer_Size{max_samples} {
+    DelayLine(const std::size_t max_samples, const RAM_Type ram_type = RAM_Type::PSRAM) : Buffer_Size{max_samples} {
         switch (ram_type)   {
             case RAM_Type::PSRAM:
                 psramInit();
@@ -40,7 +33,7 @@ public:
                 break;
         }
 
-        z0_index = Buffer_Size - 1;
+        head = Buffer_Size - 1;
     };
 
     ~DelayLine(){
@@ -48,26 +41,37 @@ public:
     };
 
     inline void add(const T value)  {
-        z0_index++;
-        if(Buffer_Size <= z0_index) {
-            z0_index = 0;
+        head++;
+
+        if(Buffer_Size <= head) {
+            head = 0;
         }
 
-        this->buffer[z0_index] = value;                
+        this->buffer[head] = value;                
     }
     
     inline const T& get(std::size_t z_index) const {
-        // return buffer.at(get_index_on_buffer(z_index));
-        return buffer[get_index_on_buffer(z_index)];
+        int index = head - z_index;
+        while(index < 0) {
+            index += Buffer_Size;
+        }
+
+        return buffer[index];
     }
 
     // Just get
-    inline const T& operator[](std::size_t z_index) const {                
+    inline const T& operator[](std::size_t z_index) const {                        
         return this->get(z_index);
     }        
 
     inline constexpr std::size_t size() const {
         return Buffer_Size;
+    }
+
+    void fill(const T& val) {
+        for(std::size_t i = 0; i < Buffer_Size; i++) {
+            buffer[i] = val;
+        }
     }
 };
 

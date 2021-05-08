@@ -12,9 +12,6 @@
 #include "ListeningData.hpp"
 #include "DeepListening.hpp"
 
-#include "I2S/Writer.h"
-#include "I2S/Reader.h"
-
 #include "Hardware/Audio/DAC/PCM5242.hpp"
 #include "Hardware/Audio/DAC/PCM5142.hpp"
 
@@ -27,7 +24,8 @@ public:
         
     void initReader();
     void initWriter();
-        
+    void beginThread();
+
     void initADC();
     void initDAC();
     
@@ -38,9 +36,6 @@ public:
 
 private:    
     ListeningApp* app;    
-    Types::fifobuffer_t* buf;
-    I2S::Reader* reader;
-    I2S::Writer* writer;
 
     Hardware::DAC::PCM5242 dac;
     Hardware::ADC::PCM1863 adc;

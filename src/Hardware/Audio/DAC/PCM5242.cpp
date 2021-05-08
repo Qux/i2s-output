@@ -20,32 +20,31 @@ int PCM5242::setClockMode(Audio::Clock_Mode clock_mode) {
         write(0, 0); // move to page 0
         write(2, 0b00010000); // enter standby mode
         write(1, 0b00010001);   //enter reset mode
-        // write(12, 0b00000000); // BCK and LRCK divider disable        
+        write(12, 0b00000000); // BCK and LRCK divider disable        
         
+        write(37, 0b00100010); // disable auto clock 
+        write(37, 0b00000000); // enable auto clock 
 
-        // write(37, 0b00100010); // disable auto clock 
-        // write(37, 0b00000000); // enable auto clock 
-
-        // write(0, 253); // move to page 253
-        // write(63, 0x11);    // enable flex clock
-        // write(64, 0xFF);
+        write(0, 253); // move to page 253
+        write(63, 0x11);    // enable flex clock
+        write(64, 0xFF);
         
         write(0, 0);        
-        // write(9, 0b00001001); // LRCK and BCK output
+        write(9, 0b00001001); // LRCK and BCK output
 
-        // write(12, 0x0C); // from datasheet
-        // write(14, 0x30);
-        // write(28, 0x1F);
+        write(12, 0x0C); // from datasheet
+        write(14, 0x30);
+        write(28, 0x1F);
                 
-        write(14, 0x30); // set SCK as DAC clock
+        // write(14, 0x30); // set SCK as DAC clock
         // write(30, 0x30);
         // write(28, 31);
         // write(32, 64); // BCK clock
         // write(33, 0b00011111); // LRCK clock
         
-        // write(65, 0b00000100); //disable auto mute
+        write(65, 0b00000100); //disable auto mute
 
-        // write(12, 0b00000011); // BCK and LRCK divider functional
+        write(12, 0b00000011); // BCK and LRCK divider functional
 
         write(1, 0b00000000);  //exit reset mode?
         write(2, 0b00000000); // exit standby mode
@@ -174,7 +173,15 @@ int PCM5242::setSampleRate(const std::size_t sr) const {
 
 void PCM5242::enable_PLL(const bool state) {
     write(0, 0);
-    write(0x04, state);
+    // write(0x04, state);
+    const uint8_t PLL_Register = 0x04;    
+    auto bits = read(PLL_Register);
+
+    if(state == true) {
+        bit_flag(bits, 0);
+    } else {
+        bit_unflag(bits, 0);
+    }
 }
 
 void PCM5242::halfOutputRms(bool half_db) {

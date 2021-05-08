@@ -6,7 +6,7 @@
 #include "App/ListeningData.hpp"
 
 namespace DeepListening {
-    void setup();
+    void setup(ListeningData& data);
     void dsp(const StereoSample& in, StereoSample& out, const ListeningData& data);
     void control(const ListeningData& data);
 

@@ -3,23 +3,27 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <cmath>
+#include <cstddef>
+
 #ifndef Arduino_h
 #include "Arduino.h"
 #endif
 
-#include <cmath>
-#include <cstddef>
 #include "driver/i2s.h"
 
+
+
+
 // This enum should move to somewhere else. maybe inside Config?
-enum Stream_State {
+enum class Stream_State {
     InOut,
     Input_Only,
     Output_Only,
     No_Audio,
 };
 
-constexpr int Test_Value = 1;
+constexpr int testval = (2 << 4);
 
 namespace Config {
     constexpr std::size_t Sampling_Rate = 48000;
@@ -29,14 +33,14 @@ namespace Config {
     constexpr float Samples_Per_Msec_Reciprocal = 1.0 / static_cast<float>(Samples_Per_Msec);
 
     constexpr i2s_bits_per_sample_t Bit_Rate = I2S_BITS_PER_SAMPLE_32BIT;
-    constexpr std::size_t Bit_Range = std::pow(2, static_cast<int>(Bit_Rate) - 1) - 1; // 8388607
-    
+    constexpr std::size_t Bit_Range = (static_cast<std::size_t>(1) << (static_cast<int>(Bit_Rate) - 1)) - 1; // std::pow(2, static_cast<std::size_t>(Bit_Rate) - 1) - 1; // 8388607
+        
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
     constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
-    constexpr Stream_State Stream = Output_Only;  // InOut, Output_Only, Input_Only, No_Audio
-    constexpr std::size_t Control_Interval_ms = 2;
+    constexpr Stream_State Stream = Stream_State::InOut;  // InOut, Output_Only, Input_Only, No_Audio
+    constexpr std::size_t Control_Interval_ms = 1;
     constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
 
     namespace DMA {
@@ -53,7 +57,7 @@ namespace Config {
     
 
     namespace ADC {
-        const bool Use_I2C_Device = false; 
+        const bool Use_I2C_Device = true; 
         const i2s_port_t I2S_NUM = I2S_NUM_0;
 
         namespace Pins {
@@ -65,7 +69,7 @@ namespace Config {
     }    
 
     namespace DAC {
-        const bool Use_I2C_Device = false;
+        const bool Use_I2C_Device = true;
         const i2s_port_t I2S_NUM = I2S_NUM_1;
 
         namespace Pins {
@@ -81,7 +85,7 @@ namespace Config {
     }
 
     namespace FFT {
-        constexpr std::size_t Size = 1024;
+        constexpr std::size_t Size = 512;
         constexpr std::size_t Overlap = 0;        
     }
 };

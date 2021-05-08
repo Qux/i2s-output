@@ -20,22 +20,20 @@ void PCM1863::setSamplingRate(Sampling_Rate sr) {
 void PCM1863::setGain(const float _gain) {
     write(1, 0b01010000); // L ch gain
     write(2, 0b01010000); // R ch gain
+    
+    // write(1, 0b00011000);   //12db
+    // write(2, 0b00011000);   //12db
 }
 
 void PCM1863::setClockMode(Clock_Mode clk_mode) {
     write(0, 0);
     
-
-    
     write(11, 0b00000000);  // i2s settings
-
     write(40, 0b00000000); // disable PLL
     
     switch (clk_mode)    {
     case Clock_Mode::Master:
         write(32, 0b00000000); // use SCK as ADC clock 
-        
-
         // bit_write(0x20, 4, true);
         break;
     

@@ -6,16 +6,19 @@ namespace DSP {
     class Line {
         public:
             float operator()() const;  // get 
+            void operator()(const float); // set
             void operator()(const float, const float); // set and start
             void operator()(const float, const float, const float);
             void bang(const float, const float);    // same 
             void bang(const float, const float, const float);
-            float get() const ;
+            float get() const;
+            void set(float);
             void next(); // proceed one sample
             
 
         private:
-            float dest, step_per_sample, val;
+            
+            volatile float dest, step_per_sample, val;
             bool isRunning;
             inline void stop() {
                 this->val = this->dest;
@@ -32,6 +35,10 @@ namespace DSP {
 
 inline float DSP::Line::operator()() const {
     return this->val;
+}
+
+inline void DSP::Line::operator()(float _val) {
+    this->val = _val;
 }
 
 inline void DSP::Line::operator()(float _dest, float duration_ms) {
@@ -65,6 +72,10 @@ inline void DSP::Line::bang(const float _inital, const float _dest, const float 
 
 inline float DSP::Line::get() const {
     return this->val; 
+}
+
+inline void DSP::Line::set(float _val) {
+    this->val = _val;
 }
 
 inline void DSP::Line::next() {

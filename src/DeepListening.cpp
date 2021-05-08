@@ -1,6 +1,8 @@
 #include "DeepListening.hpp"
 
 #include <iostream>
+#include <array>
+
 
 #include "Ticker.h"
 #include "DSP/Oscillator.hpp"
@@ -9,9 +11,8 @@
 #include "DSP/ADSR.h"
 #include "DSP/Filter.h"
 
-
 using namespace DeepListening;
-History history;
+// History history;
 
 std::size_t previousTime;
 Oscillator osc;
@@ -24,6 +25,8 @@ DSP::Line line;
 DSP::ADSR adsr;
 std::size_t counter;    
 Ticker ticker;
+
+float* fft;
 
 static void func() {
     static bool state = true;
@@ -39,8 +42,9 @@ static void func() {
     state = !state;
 }
 
-void DeepListening::setup() {
-    osc.setFreq(440);
+
+void DeepListening::setup(ListeningData& data) {
+    osc.setFreq(4000);
     lfo.setFreq(1.0);
     osc.setWaveform(osc.Triangle);
     fil.setFiltertype(fil.LowPass);
@@ -54,6 +58,7 @@ void DeepListening::setup() {
 }
 
 void DeepListening::dsp(const StereoSample& in, StereoSample& out, const ListeningData& data) {
+
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
@@ -68,10 +73,6 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
 };
 
 void DeepListening::control(const ListeningData& data) {
-    // const std::size_t currentTime = millis();    
-    // if(currentTime - previousTime >= 1000) {        
-    //     // this->bang1sec();
-    //     previousTime = currentTime;        
-    // }
+
 }
 

@@ -1,4 +1,4 @@
 [submodule "components/esp-dsp"]
 	path = components/esp-dsp
-	url = git@github.com:espressif/esp-dsp.git
+	url = git@github.com:qux/esp-dsp.git
 	branch = master
