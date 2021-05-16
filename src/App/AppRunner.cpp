@@ -36,7 +36,21 @@ void AppRunner::initDAC() {
     }
 }
 
+void AppRunner::beginWiFi() {
+    WiFi.disconnect(true, true);  // disable wifi, erase ap info
+    delay(100);
+    WiFi.mode(WIFI_STA);    
+    WiFi.begin(Config::WiFi::SSID.c_str(), Config::WiFi::Password.c_str());
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(100);
+    }
+}
+
 void AppRunner::init() {
+    if(Config::WiFi::Use) {
+        beginWiFi();
+    }
+
     app->setup();
     
     switch (Config::Stream) {    
@@ -78,8 +92,6 @@ void AppRunner::init() {
 
 void AppRunner::run() {
     app->controlLoop();
-    // TaskHandle_t taskHandle;
-    // xTaskCreatePinnedToCore(app->controlLoop, "Control Loop", 4096, nullptr, 0, &taskHandle, PRO_CPU_NUM);
 }
 
 

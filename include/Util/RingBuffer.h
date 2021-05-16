@@ -10,8 +10,8 @@ class RingBuffer {
                 target_index += N;
             }
             return buf.at(target_index);
-
         };  
+        
         void add(T val) {
             buf[head] = val;
             head++;

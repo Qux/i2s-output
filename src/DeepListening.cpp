@@ -3,8 +3,9 @@
 #include <iostream>
 #include <array>
 
-
 #include "Ticker.h"
+#include "ArduinoOSC.h"
+
 #include "DSP/Oscillator.hpp"
 #include "DSP/DelayLine.h"
 #include "DSP/Line.h"
@@ -14,7 +15,6 @@
 using namespace DeepListening;
 // History history;
 
-std::size_t previousTime;
 Oscillator osc;
 Oscillator lfo;
 Filter fil;
@@ -29,50 +29,41 @@ Ticker ticker;
 float* fft;
 
 static void func() {
-    static bool state = true;
-    if(state) {
-        const int pitch = random(72, 84);
-        const float freq = mtof(pitch);        
-        // osc.setFreq(freq);
-        adsr.noteOn();
-    } else {
-        adsr.noteOff();
-    }
-
-    state = !state;
+    OscWiFi.send("224.0.0.1", 50000, "/foo", 1);
 }
 
+void onFreqMessage(const OscMessage& m) {    
+    const float freq = m.arg<float>(0);
+    osc.setFreq(freq);
+}
 
 void DeepListening::setup(ListeningData& data) {
-    osc.setFreq(4000);
+    osc.setFreq(440);
     lfo.setFreq(1.0);
-    osc.setWaveform(osc.Triangle);
+    osc.setWaveform(osc.Sin);
     fil.setFiltertype(fil.LowPass);
-
-    previousTime = millis();
 
     adsr.set(10, 30, 0.1, 200);
     counter = 0;
 
     ticker.attach_ms(1000, func);
+    OscWiFi.subscribe(50000, "/freq", onFreqMessage);
 }
 
-void DeepListening::dsp(const StereoSample& in, StereoSample& out, const ListeningData& data) {
-
+void DeepListening::dsp(const StereoSample& in, StereoSample& out, const ListeningData& data) {    
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    out = fil.getNext(val);
-    // out = val;
+    // out = fil.getNext(val);
     // out = in;
-    // out += del.get(mstosamps(500)) * 0.5;
-    
-    // out.L += del.get(mstosamps(500)).L;
+    out = val;
+
+    // out += del.get(mstosamps(500)) * 0.5;    
     // del.add(out);
     // adsr.next();
 };
 
 void DeepListening::control(const ListeningData& data) {
-
+    OscWiFi.update();
 }
 

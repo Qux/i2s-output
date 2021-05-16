@@ -1,6 +1,7 @@
 #pragma once
 
-#include <functional>
+// #include <functional>
+#include <array>
 
 /* FREERTOS */ 
 #include "freertos/FreeRTOS.h"
@@ -16,7 +17,7 @@
 
 namespace I2S {
     TaskHandle_t taskHandle;
-    QueueHandle_t queue;
+
 
     inline std::size_t read(Types::audiobuf_t& buf) noexcept {
         static std::size_t i2s_bytes_read = 0;
@@ -25,56 +26,51 @@ namespace I2S {
     }
 
     inline std::size_t write(const Types::audiobuf_t& buf) noexcept {        
-        // static Types::audiobuf_t tmpbuf;
-        // tmpbuf.fill(0);        
-        std::size_t i2s_bytes_write = 0; // Could be nullptr   
+        static std::size_t i2s_bytes_write = 0; // Could be nullptr   
         i2s_write(Config::DAC::I2S_NUM, buf.data(), Config::DMA::I2S_Buffer_Size, &i2s_bytes_write, portMAX_DELAY);                
         return i2s_bytes_write;
     }
 
+    std::array<Types::audiobuf_t, Config::DMA::Buffer_Count> buffers;
+
     template<Stream_State stream_state>
-    void audioThread(void* param) noexcept {
+    void audioThread(void* param)  noexcept {
         std::cout << "Audio Thread has been provoked" << std::endl;
         ListeningApp* app = static_cast<ListeningApp*>(param);
-        static Types::audiobuf_t buf;
-        buf.fill(0);
+
+        std::size_t buffer_index = 0;        
 
         while(true) {
-            i2s_event_t event;
-            if(xQueueReceive(queue, &event, portMAX_DELAY) == pdPASS) {
-                // audioEvent(event, app, buf);
-                if constexpr (stream_state == Stream_State::InOut) {                    
-                    if(event.type == I2S_EVENT_TX_DONE) {                        
-                        read(buf);                                                                                   
-                        app->runDSP(buf);
-                        write(buf);
-                    }
-                }           
-
-                if constexpr (stream_state == Stream_State::Output_Only) {                            
-                    if(event.type == I2S_EVENT_TX_DONE) {                                                                    
-                        app->runDSP(buf);
-                        write(buf);                        
-                    }
-                }
-
-                if constexpr (stream_state == Stream_State::Input_Only) {                    
-                    if(event.type == I2S_EVENT_RX_DONE) {
-                        read(buf);
-                        app->runDSP(buf);
-                    }
-                }            
-
-                if constexpr (stream_state == Stream_State::No_Audio) {
-                    app->runDSP(buf);
-                }                    
+            Types::audiobuf_t& buf = buffers.at(buffer_index);
+             
+            if constexpr (stream_state == Stream_State::InOut) {                          
+                read(buf);                                                                                   
+                app->runDSP(buf);
+                write(buf);
+            } 
+            if constexpr (stream_state == Stream_State::Output_Only) {                          
+                app->runDSP(buf);
+                write(buf);                                        
             }
-        }
+
+            if constexpr (stream_state == Stream_State::Input_Only) {                    
+                read(buf);
+                app->runDSP(buf);
+            }            
+
+            if constexpr (stream_state == Stream_State::No_Audio) {                    
+                app->runDSP(buf);                
+            }
+
+            buffer_index++;
+            if(buffer_index == buffers.size()) {
+                buffer_index = 0;
+            }
+        }        
     }
     
     void beginThread(ListeningApp& app) {
-        // using task = audioThread<Config::Stream>(void*);        
-        xTaskCreatePinnedToCore(audioThread<Config::Stream>, "AudioThread", 8192, &app, 0, &taskHandle, APP_CPU_NUM);
+        xTaskCreatePinnedToCore(audioThread<Config::Stream>, "AudioThread", 4096, &app, 0, &taskHandle, APP_CPU_NUM);
     }
     
 
@@ -88,8 +84,8 @@ namespace I2S {
             .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,                               //Interrupt level 1
             .dma_buf_count = Config::DMA::Buffer_Count,
             .dma_buf_len = Config::DMA::Buffer_Length,//64,   samples
-            .use_apll = false,
-            .tx_desc_auto_clear = true,
+            .use_apll = true,
+            .tx_desc_auto_clear = false,
             // .fixed_mclk = Config::MCLK_Freq,        
             .fixed_mclk = 0,
         };
@@ -100,10 +96,9 @@ namespace I2S {
             .data_out_num = Config::DAC::Pins::DO,
             .data_in_num = Config::DAC::Pins::DI    //Not used
         };
-        i2s_driver_install(Config::DAC::I2S_NUM, &i2s_config, Config::DMA::Buffer_Count, &queue);
+        // i2s_driver_install(Config::DAC::I2S_NUM, &i2s_config, Config::DMA::Buffer_Count, &queue);
+        i2s_driver_install(Config::DAC::I2S_NUM, &i2s_config, 0, nullptr);
         i2s_set_pin(Config::DAC::I2S_NUM, &pin_config);
-        // i2s_set_clk(Config::DAC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
-        // i2s_set_sample_rates(Config::DAC::I2S_NUM, Config::Sampling_Rate);
         i2s_zero_dma_buffer(Config::DAC::I2S_NUM);
     };
 
@@ -117,8 +112,8 @@ namespace I2S {
             .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,   //Interrupt level 1
             .dma_buf_count = Config::DMA::Buffer_Count,
             .dma_buf_len = Config::DMA::Buffer_Length, //64,
-            .use_apll = false,
-            .tx_desc_auto_clear = true,
+            .use_apll = true, // good to eable PLL when the esp32 is master
+            .tx_desc_auto_clear = false,
             // .fixed_mclk = Config::MCLK_Freq,
             .fixed_mclk = 0,        
         };
@@ -130,10 +125,9 @@ namespace I2S {
             .data_in_num = Config::ADC::Pins::DI                       
         };
 
-        i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, Config::DMA::Buffer_Count, &queue);    
+        // i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, Config::DMA::Buffer_Count, &queue);
+        i2s_driver_install(Config::ADC::I2S_NUM, &i2s_config, 0, nullptr);       
         i2s_set_pin(Config::ADC::I2S_NUM, &pin_config);
-        // i2s_set_sample_rates(Config::ADC::I2S_NUM, Config::Sampling_Rate);
-        // i2s_set_clk(Config::ADC::I2S_NUM, Config::Sampling_Rate, Config::Bit_Rate, I2S_CHANNEL_STEREO);
         i2s_zero_dma_buffer(Config::ADC::I2S_NUM);
     };
 }

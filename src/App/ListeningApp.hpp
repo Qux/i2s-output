@@ -44,17 +44,16 @@ class ListeningApp {
         }
 
         inline void runDSP(Types::audiobuf_t& buf) noexcept {
-            this->inDSP = true;
+            // this->inDSP = true;
             this->dspLoop(buf);
-            this->inDSP = false;
+            // this->inDSP = false;
         }
 
         inline void controlLoop(void* p = nullptr) noexcept {
             while (true)  {                        
-                if(!this->inDSP)  {
+                // if(!this->inDSP)  { // not sure if we should do this
                     DeepListening::control(data);
-                }
-                // vPortYield();
+                // }                
                 vTaskDelay(Config::Control_Interval);    
             }
         }

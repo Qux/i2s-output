@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef Arduino_h
+#include <Arduino.h>
+#endif // !Arduino_h
+
 #include "Config.hpp"
 #include "Types.hpp"
 
@@ -19,7 +23,7 @@ namespace DeepListening {
     };   
 
     constexpr inline float mtof(const int pitch, const float base = 440.0) {  // might want to use the pre-defined look up table 
-       constexpr float twelve_reciprocal = 1.0 / 12.0;
+        constexpr float twelve_reciprocal = 1.0 / 12.0;
         return base * pow(2, (pitch - 69) * twelve_reciprocal);
     }
 }

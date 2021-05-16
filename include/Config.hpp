@@ -5,14 +5,13 @@
 
 #include <cmath>
 #include <cstddef>
+#include <string>
 
 #ifndef Arduino_h
 #include "Arduino.h"
 #endif
 
 #include "driver/i2s.h"
-
-
 
 
 // This enum should move to somewhere else. maybe inside Config?
@@ -33,19 +32,19 @@ namespace Config {
     constexpr float Samples_Per_Msec_Reciprocal = 1.0 / static_cast<float>(Samples_Per_Msec);
 
     constexpr i2s_bits_per_sample_t Bit_Rate = I2S_BITS_PER_SAMPLE_32BIT;
-    constexpr std::size_t Bit_Range = (static_cast<std::size_t>(1) << (static_cast<int>(Bit_Rate) - 1)) - 1; // std::pow(2, static_cast<std::size_t>(Bit_Rate) - 1) - 1; // 8388607
+    constexpr std::size_t Bit_Range = (static_cast<std::size_t>(1) << (static_cast<int>(Bit_Rate) - 1)) - 1;
         
     constexpr float Bit_Range_Reciprocal = 1.0 / static_cast<float>(Bit_Range);
     constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
-    constexpr Stream_State Stream = Stream_State::InOut;  // InOut, Output_Only, Input_Only, No_Audio
+    constexpr Stream_State Stream = Stream_State::Output_Only;  // InOut, Output_Only, Input_Only, No_Audio
     constexpr std::size_t Control_Interval_ms = 1;
     constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
 
     namespace DMA {
         constexpr std::size_t Buffer_Count = 4;
-        constexpr std::size_t Buffer_Size = 512;
+        constexpr std::size_t Buffer_Size = 256;
         constexpr std::size_t Buffer_Length = Channels * Buffer_Size;
         constexpr std::size_t Size_byte = sizeof(int);
         constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
@@ -87,6 +86,12 @@ namespace Config {
     namespace FFT {
         constexpr std::size_t Size = 512;
         constexpr std::size_t Overlap = 0;        
+    }
+
+    namespace WiFi {
+        constexpr bool Use = false;
+        const std::string SSID = "foo";
+        const std::string Password = "barbar";
     }
 };
 

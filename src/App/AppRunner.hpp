@@ -1,9 +1,13 @@
 #pragma once
 
-// #include "Arduino.h"
 
 /** C++ **/
 #include <iostream>
+
+/* ESP32 */
+#include "Arduino.h"
+#include "WiFi.h"
+
 
 #include "Config.hpp"
 #include "Types.hpp"
@@ -12,10 +16,12 @@
 #include "ListeningData.hpp"
 #include "DeepListening.hpp"
 
+/* ADC */
+#include "Hardware/Audio/ADC/PCM1863.hpp"
+
+/* DAC */
 #include "Hardware/Audio/DAC/PCM5242.hpp"
 #include "Hardware/Audio/DAC/PCM5142.hpp"
-
-#include "Hardware/Audio/ADC/PCM1863.hpp"
 
 
 class AppRunner {
@@ -29,6 +35,7 @@ public:
     void initADC();
     void initDAC();
     
+    void beginWiFi();
 
     void init();
     void runThreads();
