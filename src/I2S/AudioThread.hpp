@@ -10,7 +10,7 @@
 #include "driver/i2s.h"
 #include "esp_system.h"
 
-
+/* DeepListening */
 #include "Config.hpp"
 #include "Types.hpp"
 #include "App/ListeningApp.hpp"
@@ -86,8 +86,8 @@ namespace I2S {
             .dma_buf_len = Config::DMA::Buffer_Length,//64,   samples
             .use_apll = true,
             .tx_desc_auto_clear = false,
-            // .fixed_mclk = Config::MCLK_Freq,        
-            .fixed_mclk = 0,
+            .fixed_mclk = Config::MCLK_Freq,        
+            // .fixed_mclk = 0,
         };
 
         const i2s_pin_config_t pin_config = {
@@ -114,8 +114,8 @@ namespace I2S {
             .dma_buf_len = Config::DMA::Buffer_Length, //64,
             .use_apll = true, // good to eable PLL when the esp32 is master
             .tx_desc_auto_clear = false,
-            // .fixed_mclk = Config::MCLK_Freq,
-            .fixed_mclk = 0,        
+            .fixed_mclk = Config::MCLK_Freq,
+            // .fixed_mclk = 0,        
         };
 
         const i2s_pin_config_t pin_config = {

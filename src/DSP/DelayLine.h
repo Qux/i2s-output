@@ -11,7 +11,7 @@
 #include "Types.hpp"
 #include "Base/StereoSample.hpp"
 
-template<typename T = float>class DelayLine    {
+template<typename T = float> class DelayLine {
 private:
     // std::array<T, N> buffer; 
     T* buffer;
@@ -40,7 +40,7 @@ public:
         free(buffer);
     };
 
-    inline void add(const T value)  {
+    void add(const T value)  {
         head++;
 
         if(Buffer_Size <= head) {
@@ -50,7 +50,7 @@ public:
         this->buffer[head] = value;                
     }
     
-    inline const T& get(std::size_t z_index) const {
+    const T& get(std::size_t z_index) const {
         int index = head - z_index;
         while(index < 0) {
             index += Buffer_Size;
@@ -60,11 +60,11 @@ public:
     }
 
     // Just get
-    inline const T& operator[](std::size_t z_index) const {                        
+    const T& operator[](std::size_t z_index) const {                        
         return this->get(z_index);
     }        
 
-    inline constexpr std::size_t size() const {
+    constexpr std::size_t size() const {
         return Buffer_Size;
     }
 

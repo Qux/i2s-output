@@ -13,7 +13,6 @@
 
 #include "driver/i2s.h"
 
-
 // This enum should move to somewhere else. maybe inside Config?
 enum class Stream_State {
     InOut,
@@ -21,8 +20,6 @@ enum class Stream_State {
     Output_Only,
     No_Audio,
 };
-
-constexpr int testval = (2 << 4);
 
 namespace Config {
     constexpr std::size_t Sampling_Rate = 48000;
@@ -38,13 +35,14 @@ namespace Config {
     constexpr std::size_t MCLK_Freq = Sampling_Rate * 512;
     constexpr std::size_t Channels = 2;
 
-    constexpr Stream_State Stream = Stream_State::Output_Only;  // InOut, Output_Only, Input_Only, No_Audio
-    constexpr std::size_t Control_Interval_ms = 1;
-    constexpr TickType_t Control_Interval = Control_Interval_ms / portTICK_PERIOD_MS;
+    constexpr Stream_State Stream = Stream_State::InOut;  // InOut, Output_Only, Input_Only, No_Audio
+
+    constexpr std::size_t Control_Interval = 1;
+    constexpr TickType_t Control_Interval_Tick = Control_Interval / portTICK_PERIOD_MS;
 
     namespace DMA {
         constexpr std::size_t Buffer_Count = 4;
-        constexpr std::size_t Buffer_Size = 256;
+        constexpr std::size_t Buffer_Size = 128;
         constexpr std::size_t Buffer_Length = Channels * Buffer_Size;
         constexpr std::size_t Size_byte = sizeof(int);
         constexpr std::size_t I2S_Buffer_Size = Buffer_Length * Size_byte;
@@ -52,11 +50,11 @@ namespace Config {
 
     namespace Hardware{
         constexpr std::size_t Boot_Time = 1;
+        constexpr std::size_t Boot_Time_Tick = Boot_Time / portTICK_PERIOD_MS;
     }
     
-
     namespace ADC {
-        const bool Use_I2C_Device = true; 
+        const bool Use_I2C_Device = false; 
         const i2s_port_t I2S_NUM = I2S_NUM_0;
 
         namespace Pins {
@@ -68,7 +66,7 @@ namespace Config {
     }    
 
     namespace DAC {
-        const bool Use_I2C_Device = true;
+        const bool Use_I2C_Device = false;
         const i2s_port_t I2S_NUM = I2S_NUM_1;
 
         namespace Pins {
@@ -79,19 +77,15 @@ namespace Config {
         }
     }
 
-    namespace History {
-        constexpr std::size_t Size = 48000;
-    }
-
     namespace FFT {
-        constexpr std::size_t Size = 512;
-        constexpr std::size_t Overlap = 0;        
+        constexpr std::size_t Size = 1024;
+        constexpr std::size_t Overlap = 1; // Set 1 if no overlap          
     }
 
-    namespace WiFi {
+    namespace WiFi { // TODO: implement static IP mode
         constexpr bool Use = false;
-        const std::string SSID = "foo";
-        const std::string Password = "barbar";
+        const std::string SSID = "your-ssid";
+        const std::string Password = "your-pass";
     }
 };
 

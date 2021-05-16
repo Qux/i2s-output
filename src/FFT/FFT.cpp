@@ -30,7 +30,7 @@ FFT::~FFT() {
 
 void FFT::init() {
     esp_err_t error_state = 0;
-    // error_state = dsps_fft2r_init_fc32(NULL, Config::FFT::Size);    
+    error_state = dsps_fft2r_init_fc32(NULL, Config::FFT::Size);    
 
     if(error_state != ESP_OK) {
         std::cout << "Failed to init FFT." << std::endl;

@@ -6,13 +6,12 @@
 
 #include "Config.hpp"
 #include "Types.hpp"
-
-#include "App/ListeningData.hpp"
+#include "Base/StereoSample.hpp"
 
 namespace DeepListening {
-    void setup(ListeningData& data);
-    void dsp(const StereoSample& in, StereoSample& out, const ListeningData& data);
-    void control(const ListeningData& data);
+    void setup();
+    void dsp(const StereoSample& in, StereoSample& out);
+    void control();
 
     constexpr inline std::size_t mstosamps(float ms) {
         return Config::Sampling_Rate * 0.001 * ms;

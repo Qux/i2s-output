@@ -1,5 +1,5 @@
 #include "Oscillator.hpp"
-
+#include "Config.hpp"
 
 Oscillator::Oscillator(Waveform _waveform) {
         phase = 0.0;

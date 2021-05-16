@@ -2,9 +2,7 @@
 
 #include <array>
 
-
 #include "Config.hpp"
-
 #include "Util/Static_FIFO.h"
 
 namespace Types {

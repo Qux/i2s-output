@@ -1,9 +1,8 @@
 #pragma once
 
-
-#include "Config.hpp"
+#ifndef TWO_PI  
 #include <cmath>
-
+#endif
 
 class Oscillator {
 public: 
@@ -23,10 +22,10 @@ public:
     void reset();
 
 private:
-    float freq;
-    float freq_reciprocal;  // reciprocal of the freqency to redule division.
-    float phase_inc;  // increment value of phase per sample (everytime getNext() called).
-    float phase;    // 0.0 ~ 2pi.
+    volatile float freq;
+    volatile float freq_reciprocal;  // reciprocal of the freqency to redule division.
+    volatile float phase_inc;  // increment value of phase per sample (everytime getNext() called).
+    volatile float phase;    // 0.0 ~ 2pi.
     float duty; // 0.0 < duty < 1.0
     float DC_value;
     Waveform waveform;

@@ -9,13 +9,10 @@
 
 #include "esp_dsp.h"
 
-
-// #include "Arduino.h"
 #include "Config.h"
 #include "Types.hpp"
 
 #include "Util/RangedCounter.h"
-
 
 class FFT {
     public:
@@ -27,6 +24,8 @@ class FFT {
     void calculate();
     void add(const float val);
     float* getResult();
+    float get(const std::size_t index) const;
+    std::size_t size() const;
 
     private:
     void allocate(std::function<void*(size_t, size_t)> calloc_func);
@@ -35,7 +34,8 @@ class FFT {
     float* data;
     float* window;
     float* fft_result;
-    static constexpr float FFT_Size_Reciprocal = 1.0 / Config::FFT::Size;
+    static constexpr float FFT_Size_Reciprocal = 1.0 / Config::FFT::Size;    
+    static constexpr int Counter_Max = Config::FFT::Size / Config::FFT::Overlap;
 
     std::size_t counter;        
 };
@@ -44,7 +44,7 @@ class FFT {
 inline void FFT::add(const float val) {
     input[counter] = val;
     counter++;
-    if(counter == Config::FFT::Size) {
+    if(counter == Counter_Max) {
         calculate();
         counter = 0;
     }
@@ -52,4 +52,12 @@ inline void FFT::add(const float val) {
 
 inline float* FFT::getResult() {
     return fft_result;
+}
+
+inline float FFT::get(const std::size_t index) const {
+    return data[index];
+}
+
+inline std::size_t FFT::size() const {
+    return Config::FFT::Size;
 }
