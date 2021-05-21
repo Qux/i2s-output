@@ -8,6 +8,7 @@
 #include "DSP/Line.h"
 #include "DSP/ADSR.h"
 #include "DSP/Filter.h"
+#include "DSP/FilterBiquad.h"
 
 
 using namespace DeepListening;
@@ -17,6 +18,7 @@ std::size_t previousTime;
 Oscillator osc;
 Oscillator lfo;
 Filter fil;
+Biquad biq;
 
 StereoDelay del = StereoDelay(mstosamps(1000));
 
@@ -42,8 +44,9 @@ static void func() {
 void DeepListening::setup() {
     osc.setFreq(440);
     lfo.setFreq(1.0);
-    osc.setWaveform(osc.Triangle);
+    osc.setWaveform(osc.Square);
     fil.setFiltertype(fil.LowPass);
+    biq.setFilterInfo(biq.LowPass, 100, 5);
 
     previousTime = millis();
 
@@ -57,7 +60,8 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    out = fil.getNext(val);
+    // out = fil.getNext(val);
+    out = biq.process(val);
     // out = val;
     // out = in;
     // out += del.get(mstosamps(500)) * 0.5;
