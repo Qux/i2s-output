@@ -2,7 +2,6 @@
 
 #include "esp_dsp.h"
 
-#define MAX_DLINE_SIZE 20
 #include "DelayLine.h"
 
 #ifndef FILTERBIQUAD_H
@@ -13,23 +12,27 @@ class Biquad {
 public:
     enum Filtertype {
         LowPass,
+        BandPass,
+        HighPass,
     };
 
-    Biquad(Filtertype _filtertype = LowPass);
+    Biquad();
 
     void setFilterInfo(const Filtertype _filtertype, const float _freq, const float _qfactor);
     void setFiltertype(const Filtertype _filtertype);
     void setFreq(const float _freq);
     void setQFactor(const float _qfactor);
     void genCoefficients();
+    void test_keisan(const float *input, float *output, int len, float *coef, float *w);
     float process(float in);
     void setArray(float *a);
 
 private:
-    MonoDelay dline = MonoDelay(MAX_DLINE_SIZE);
+    MonoDelay dline = MonoDelay(10); // TODO 本当はwindowsizeの取りうる最大値にしたい。
     Filtertype filtertype;
     float freq;
     float qfactor;
     float out;
-    float coeffs_lpf[5];
+    float coeff[5];
+    float w_lpf[2];
 };

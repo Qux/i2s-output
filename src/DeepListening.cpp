@@ -45,8 +45,7 @@ void DeepListening::setup() {
     osc.setFreq(440);
     lfo.setFreq(1.0);
     osc.setWaveform(osc.Square);
-    fil.setFiltertype(fil.LowPass);
-    biq.setFilterInfo(biq.LowPass, 100, 5);
+    // fil.setFiltertype(fil.LowPass);
 
     previousTime = millis();
 
