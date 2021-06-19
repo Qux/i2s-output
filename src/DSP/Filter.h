@@ -19,7 +19,8 @@ public:
     void setFiltertype(const Filtertype _filtertype);
     void setWindowsize(const int _windowsize);
     void setIndex(const std::size_t _index);
-    float getNext(float in);
+    float process(float in);
+    StereoSample process(StereoSample sample);
     
 private:
     MonoDelay dline = MonoDelay(MAX_WINDOW_SIZE); // TODO 本当はwindowsizeの取りうる最大値にしたい。
@@ -29,6 +30,4 @@ private:
     std::size_t index;
     std::size_t initial_index;
     float sum;
-    float outL;
-    float outR;
 };

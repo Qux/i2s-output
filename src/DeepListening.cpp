@@ -59,8 +59,8 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    // out = fil.getNext(val);
-    out = biq.process(val);
+    out = fil.process(val);
+    // out = biq.process(val);
     // out = val;
     // out = in;
     // out += del.get(mstosamps(500)) * 0.5;

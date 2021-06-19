@@ -25,12 +25,13 @@ public:
     void genCoefficients();
     void test_keisan(const float *input, float *output, int len, float *coef, float *w);
     float process(float in);
+    StereoSample process(StereoSample sample);
     void setArray(float *a);
 
 private:
     MonoDelay dline = MonoDelay(10); // TODO 本当はwindowsizeの取りうる最大値にしたい。
     Filtertype filtertype;
-    float freq;
+    float freq_normalized;
     float qfactor;
     float out;
     float coeff[5];

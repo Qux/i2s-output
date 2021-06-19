@@ -1,9 +1,7 @@
 #include "FilterBiquad.h"
 
 Biquad::Biquad() {
-    filtertype = BandPass;
-    freq     = 0.15; // in range of 0.0 - 0.5
-    qfactor  = 0.80;
+    setFilterInfo(LowPass, 1000, 0.80);
     out      = 0.0;
     w_lpf[0] = 0.0;
     w_lpf[1] = 0.0;
@@ -12,51 +10,59 @@ Biquad::Biquad() {
 
 void Biquad::setFilterInfo(const Filtertype _filtertype, const float _freq, const float _qfactor) {
     filtertype = _filtertype;
-    freq       = _freq;
+    setFreq(_freq);
     qfactor    = _qfactor;
     genCoefficients();
 }
-// TODO setFreq関数を用意して、freqを0 ~ SamplingRate/2で扱い、自動で0 ~ 0.5に正規化する機能をつける
+
+//////////////////////////////////////////////////////////////////////////
+// setFreq: freqを0 ~ SamplingRate/2で扱い、自動で0 ~ 0.5に正規化する
+// _freq: frequency (0 - SamplingRate/2.0)
+// freq_normalized = freq * Config::Sampling_Rate_Reciprocal
+//////////////////////////////////////////////////////////////////////////
 void Biquad::setFreq(const float _freq) {
     if(_freq < 0.0) {
-        freq = 0.0;
-    } else if(_freq > Config::Sampling_Rate) {
-        freq = Config::Sampling_Rate;
+        freq_normalized = 0.0;
+    } else if(_freq > 0.5 * Config::Sampling_Rate) {
+        freq_normalized = 0.5; 
     } else {
-        freq = _freq;
+        freq_normalized = _freq * Config::Sampling_Rate_Reciprocal;
     }
 }
 
 void Biquad::genCoefficients() {
-    esp_err_t ret = ESP_OK; // TODO retをちゃんと使う
+    esp_err_t ret = ESP_OK;
     switch(filtertype) {
         case LowPass:
-           ret = dsps_biquad_gen_lpf_f32(coeff, freq, qfactor); 
+           ret = dsps_biquad_gen_lpf_f32(coeff, freq_normalized, qfactor); 
            break;
         case BandPass:
-           ret = dsps_biquad_gen_bpf0db_f32(coeff, freq, qfactor); 
+           ret = dsps_biquad_gen_bpf0db_f32(coeff, freq_normalized, qfactor); 
            break;
         case HighPass:
-            ret = dsps_biquad_gen_hpf_f32(coeff, freq, qfactor);
+            ret = dsps_biquad_gen_hpf_f32(coeff, freq_normalized, qfactor);
             break;
         default:
-           ret = dsps_biquad_gen_lpf_f32(coeff, freq, qfactor); 
+           ret = dsps_biquad_gen_lpf_f32(coeff, freq_normalized, qfactor); 
             break;
     }
-}
-
-void Biquad::test_keisan(const float *input, float *output, int len, float *coef, float *w) {
-    for (int i = 0 ; i < len ; i++) {
-        float d0 = input[i] - coef[3] * w[0] - coef[4] * w[1];
-        float outtemp = coef[0] * d0 +  coef[1] * w[0] + coef[2] * w[1];
-        output[i] = outtemp;
-        w[1] = w[0];
-        w[0] = d0;
+    if(ret != ESP_OK) {
+        std::cout << "[error]: genCoefficients function" << std::endl;
     }
 }
 
 float Biquad::process(float in) {
     esp_err_t ret = ESP_OK;
     ret = dsps_biquad_f32_ae32(&in, &out, 1, coeff, w_lpf); // ae32 is optimized for esp32. In other case, use ansi.
+    if (ret != ESP_OK) {
+        std::cout << "[error]: dsps_biquad_f32_ae32 function" << std::endl;
+    }
+    return out;
+}
+
+StereoSample Biquad::process(StereoSample sample) {
+    StereoSample out;
+    out.L = Biquad::process(sample.L);
+    out.R = Biquad::process(sample.R);
     return out;
 }

@@ -3,8 +3,6 @@
 Filter::Filter(Filtertype _filtertype) {
     windowsize = MAX_WINDOW_SIZE;
     filtertype = _filtertype;
-    outL = 0.0;
-    outR = 0.0;
 }
 
 void Filter::init() {
@@ -27,16 +25,8 @@ void Filter::setWindowsize(const int _windowsize) {
 void Filter::setIndex(const std::size_t _index) {
     index = _index;
 }
-/* TODO オーバーロードしてStereoSampleが来てもいけるようにする。
-    getNext(StereoSample sample) {
-        getNext(sample.L);
-        getNext(sample.R); 
-    }
 
-    Filter::getNextの実体は以下のように、左右の概念無く作ってみる。
-    Filter::getNext(float in){...}
-*/
-float Filter::getNext(float in) { 
+float Filter::process(float in) { 
     float out = 0.0;
     switch(filtertype) {
         case LowPass:
@@ -61,5 +51,12 @@ float Filter::getNext(float in) {
             break;
     }
     index = (index + 1) % MAX_WINDOW_SIZE;
+    return out;
+}
+
+StereoSample Filter::process(StereoSample sample) {
+    StereoSample out;
+    out.L = Filter::process(sample.L);
+    out.R = Filter::process(sample.R);
     return out;
 }
