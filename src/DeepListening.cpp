@@ -59,8 +59,8 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
     const float val = osc.getNext();    
     // const float lfoval = (lfo.getNext() + 1.0) * 0.5;    
 
-    out = fil.process(val);
-    // out = biq.process(val);
+    // out = fil.process(val);
+    out = biq.process(val);
     // out = val;
     // out = in;
     // out += del.get(mstosamps(500)) * 0.5;
@@ -71,10 +71,11 @@ void DeepListening::dsp(const StereoSample& in, StereoSample& out, const Listeni
 };
 
 void DeepListening::control(const ListeningData& data) {
-    // const std::size_t currentTime = millis();    
-    // if(currentTime - previousTime >= 1000) {        
-    //     // this->bang1sec();
-    //     previousTime = currentTime;        
-    // }
+    const std::size_t currentTime = millis();    
+    if(currentTime - previousTime >= 1000) {        
+        biq.debug_auto_setfreq();
+        // this->bang1sec();
+        previousTime = currentTime;        
+    }
 }
 
