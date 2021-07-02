@@ -18,7 +18,7 @@ public:
         PeakingEQ,
     };
 
-    Biquad(Filtertype _filtertype = PeakingEQ, float _freq = 1000, float _qfactor = 5.0);
+    Biquad(Filtertype _filtertype = PeakingEQ, float _freq = 1000, float _qfactor = 3.0);
 
     void setFilterInfo(const Filtertype _filtertype, const float _freq, const float _qfactor);
     void setFiltertype(const Filtertype _filtertype);

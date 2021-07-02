@@ -31,11 +31,13 @@ void Biquad::setFreq(const float _freq) {
 }
 
 void Biquad::debug_auto_setfreq() {
-    float _freq_norm = freq_normalized + 0.05;
-    if (_freq_norm > 0.5) {
-        _freq_norm = 0.0;
+    static float _freq = 10.0;
+    _freq *= 2.0;
+    if (_freq> 20000) {
+        _freq = 10.0;
     }
-    freq_normalized = _freq_norm;
+    std::cout << _freq << std::endl;
+    setFreq(_freq);
     genCoefficients(coeff);
 }
 
