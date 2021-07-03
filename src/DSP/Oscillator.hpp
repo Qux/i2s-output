@@ -7,11 +7,11 @@
 class Oscillator {
 public: 
     enum Waveform {
-        Sin, Cos, Triangle, Square, Sawtooth, DC,
+        Sin, Cos, Triangle, Square, Sawtooth, DC, WhiteNoise,
     };
 
-    Oscillator(Waveform _waveform = Sin);
-    Oscillator(std::size_t _freq, Waveform _waveform = Sin);
+    Oscillator(Waveform _waveform = Waveform::Sin);
+    Oscillator(std::size_t _freq, Waveform _waveform = Waveform::Sin);
 
     void setWaveform(const Waveform _waveform);
     void setFreq(const float _freq);

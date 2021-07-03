@@ -62,9 +62,9 @@ float Oscillator::getNext() {
                 t = -1.0/duty + 1.0 + 2.0 * (0.5 * phase / (duty * TWO_PI) );
             }
             return 2.0 * (fabsf(t) - 0.5);
-            }
-            
             break;
+        }            
+
         case Square:
             if (phase < duty * TWO_PI) {
                 return 1.0;
@@ -81,8 +81,18 @@ float Oscillator::getNext() {
             break;
         case DC:
             return DC_value;
+            break;
+        case WhiteNoise: {
+            constexpr long I24_Max = std::pow(2, 23);
+            constexpr long I24_Min = -1 * std::pow(2, 23);
+            constexpr float I24_Max_Reciprocal = 1.0 / static_cast<float>(I24_Max);
+
+            return static_cast<float>(random(I24_Min, I24_Max)) * I24_Max_Reciprocal;
+            break;
+        }
+
         default:
-            return 0.0;
+            return 0.0f;
             break;
     }
     return 0.0;
